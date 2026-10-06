@@ -1,0 +1,163 @@
+name: Build Tasneem Android APK
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Java 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Setup Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+
+      - name: Prepare web assets
+        shell: bash
+        run: |
+          rm -rf www
+          mkdir -p www/vendor/ort
+          rsync -a --exclude='www' --exclude='android' --exclude='node_modules' --exclude='.git' --exclude='.github' --exclude='native' --exclude='android-res' ./ www/
+          cp node_modules/onnxruntime-web/dist/ort.min.js www/vendor/ort.min.js
+          cp node_modules/onnxruntime-web/dist/ort-wasm*.wasm www/vendor/ort/
+          cp node_modules/onnxruntime-web/dist/ort-wasm*.mjs www/vendor/ort/
+          test -s www/vendor/ort.min.js
+          test -s www/models/fastconformer_full_mixed.onnx
+          test -s www/models/quran_ctc_tokens.json
+          test -s www/models/tokenizer.model
+
+      - name: Add Android platform
+        run: npx cap add android
+
+      - name: Sync Capacitor
+        run: npx cap sync android
+
+      - name: Install native build tools
+        run: sudo apt-get update && sudo apt-get install -y ffmpeg
+
+      - name: Add CAP.Tasneem native plugin and Android resources
+        shell: bash
+        run: |
+          mkdir -p android/app/src/main/java/com/tasneem/app android/app/src/main/res/raw android/app/src/main/res/drawable android/app/src/main/res/layout android/app/src/main/res/xml
+          cp native/android/com/tasneem/app/*.java android/app/src/main/java/com/tasneem/app/
+          cp native/res/layout/tasneem_widget.xml android/app/src/main/res/layout/
+          cp native/res/drawable/widget_bg.xml android/app/src/main/res/drawable/
+          cp native/res/xml/tasneem_widget_info.xml native/res/xml/file_paths.xml android/app/src/main/res/xml/
+          cp android-res/ic_stat_mosque.xml android/app/src/main/res/drawable/ic_stat_mosque.xml
+          # CC0 adhan recording from Wikimedia Commons; converted to Android-friendly WAV.
+          curl -A 'Tasneem-CI/1.0' -L --fail --retry 3 'https://upload.wikimedia.org/wikipedia/commons/e/e7/Adhan.ogg' -o /tmp/adhan.ogg
+          ffmpeg -y -i /tmp/adhan.ogg -t 45 -ac 1 -ar 44100 -c:a pcm_s16le android/app/src/main/res/raw/adhan.wav
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('android/app/src/main/AndroidManifest.xml')
+          s=p.read_text()
+          marker='<application'
+          perms=[
+            'android.permission.ACCESS_COARSE_LOCATION',
+            'android.permission.ACCESS_FINE_LOCATION',
+            'android.permission.RECORD_AUDIO',
+            'android.permission.POST_NOTIFICATIONS',
+            'android.permission.SCHEDULE_EXACT_ALARM',
+            'android.permission.FOREGROUND_SERVICE',
+            'android.permission.FOREGROUND_SERVICE_SPECIAL_USE'
+          ]
+          lines=[]
+          for perm in perms:
+              if 'android.permission.'+perm.split('.')[-1] not in s:
+                  lines.append(f'    <uses-permission android:name="{perm}" />')
+          if lines:
+              s=s.replace(marker, '\n'.join(lines)+'\n    '+marker, 1)
+          p.write_text(s)
+          PY
+          grep -q 'android.permission.RECORD_AUDIO' android/app/src/main/AndroidManifest.xml
+          grep -q 'android.permission.SCHEDULE_EXACT_ALARM' android/app/src/main/AndroidManifest.xml
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('android/app/src/main/AndroidManifest.xml')
+          s=p.read_text()
+          add=Path('native/AndroidManifest.add.xml').read_text()
+          if 'com.tasneem.app.TasneemWidget' not in s:
+              s=s.replace('</application>', add+'\n</application>', 1)
+          p.write_text(s)
+          PY
+          grep -q 'com.tasneem.app.TasneemWidget' android/app/src/main/AndroidManifest.xml
+          grep -q 'android:authorities="${applicationId}.tasneemfp"' android/app/src/main/AndroidManifest.xml
+          grep -q 'com.tasneem.app.CountReceiver' android/app/src/main/AndroidManifest.xml
+          DUP=$(grep -o 'android:authorities="[^"]*"' android/app/src/main/AndroidManifest.xml | sort | uniq -d)
+          if [ -n "$DUP" ]; then echo "Duplicate provider authorities: $DUP"; exit 1; fi
+
+      - name: Register CAP.Tasneem plugin
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          candidates=[Path('android/app/src/main/java/com/tasneem/app/MainActivity.java'),Path('android/app/src/main/java/com/tasneem/app/MainActivity.kt')]
+          p=next((x for x in candidates if x.exists()),None)
+          if p is None: raise SystemExit('MainActivity not found')
+          if p.suffix=='.java':
+              s=p.read_text()
+              if 'import android.os.Bundle;' not in s: s=s.replace('package com.tasneem.app;','package com.tasneem.app;\n\nimport android.os.Bundle;')
+              if 'import com.tasneem.app.TasneemPlugin;' not in s: s=s.replace('package com.tasneem.app;','package com.tasneem.app;\n\nimport com.tasneem.app.TasneemPlugin;')
+              body="public class MainActivity extends BridgeActivity {\n    @Override\n    public void onCreate(Bundle savedInstanceState) {\n        registerPlugin(TasneemPlugin.class);\n        super.onCreate(savedInstanceState);\n    }\n}\n"
+              s=re.sub(r'public class MainActivity extends BridgeActivity\s*\{.*?\}\s*$', body, s, flags=re.S)
+          else:
+              s="package com.tasneem.app\n\nimport android.os.Bundle\nimport com.getcapacitor.BridgeActivity\nimport com.tasneem.app.TasneemPlugin\n\nclass MainActivity : BridgeActivity() {\n    override fun onCreate(savedInstanceState: Bundle?) {\n        registerPlugin(TasneemPlugin::class.java)\n        super.onCreate(savedInstanceState)\n    }\n}\n"
+          p.write_text(s)
+          print(p)
+          PY
+          grep -R -q 'registerPlugin(TasneemPlugin' android/app/src/main/java/com/tasneem/app/MainActivity.*
+
+      - name: Apply app icon
+        shell: bash
+        run: |
+          set -e
+          RES=android/app/src/main/res
+          for spec in mdpi:48:108 hdpi:72:162 xhdpi:96:216 xxhdpi:144:324 xxxhdpi:192:432; do
+            IFS=: read d legacy fg <<< "$spec"
+            mkdir -p "$RES/mipmap-$d"
+            ffmpeg -y -loglevel error -i icons/icon-512.png -vf "scale=${legacy}:${legacy}:flags=lanczos" "$RES/mipmap-$d/ic_launcher.png"
+            cp "$RES/mipmap-$d/ic_launcher.png" "$RES/mipmap-$d/ic_launcher_round.png"
+            ffmpeg -y -loglevel error -i icons/icon-512.png -vf "scale=${fg}:${fg}:flags=lanczos" "$RES/mipmap-$d/ic_launcher_foreground.png"
+          done
+          test -s "$RES/mipmap-xxxhdpi/ic_launcher_foreground.png"
+          test -s "$RES/mipmap-mdpi/ic_launcher.png"
+
+      - name: Verify JS and JSON
+        run: |
+          node --check js/store.js
+          node --check js/quran.js
+          node --check js/recitation-ai.js
+          node --check js/tasneem-plus.js
+          node --check js/cloud-sync.js
+          node --check js/app.js
+          node -e "JSON.parse(require('fs').readFileSync('data/quran.json','utf8')); JSON.parse(require('fs').readFileSync('models/quran_ctc_tokens.json','utf8'));"
+
+      - name: Build debug APK
+        working-directory: android
+        run: ./gradlew assembleDebug --no-daemon --stacktrace
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: tasneem-debug-apk
+          path: android/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error

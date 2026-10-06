@@ -1,0 +1,5 @@
+package com.tasneem.app;
+import android.app.*;import android.content.*;import android.os.Build;import androidx.core.app.NotificationCompat;
+public class AdhanReceiver extends BroadcastReceiver{
+ public void onReceive(Context c,Intent in){String name=in.getStringExtra(TasneemPlugin.EXTRA_NAME);if(name==null)name="الصلاة";TasneemPlugin.createChannelsFor(c);Intent open=c.getPackageManager().getLaunchIntentForPackage(c.getPackageName());PendingIntent pi=open==null?null:PendingIntent.getActivity(c,9100,open,PendingIntent.FLAG_UPDATE_CURRENT|PendingIntent.FLAG_IMMUTABLE);NotificationCompat.Builder n=new NotificationCompat.Builder(c,TasneemPlugin.CHANNEL_ADHAN).setSmallIcon(R.drawable.ic_stat_mosque).setContentTitle("حان وقت الصلاة").setContentText("أذان "+name).setAutoCancel(true).setCategory(NotificationCompat.CATEGORY_ALARM).setPriority(NotificationCompat.PRIORITY_MAX);if(pi!=null)n.setContentIntent(pi);((NotificationManager)c.getSystemService(Context.NOTIFICATION_SERVICE)).notify(7000+in.getIntExtra("slot",0),n.build());}
+}

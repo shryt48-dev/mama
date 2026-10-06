@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/widget_root" android:layout_width="match_parent" android:layout_height="match_parent"
+    android:orientation="vertical" android:padding="12dp" android:gravity="center_vertical"
+    android:background="@drawable/widget_bg">
+    <TextView android:id="@+id/widget_title" android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:text="تسنيم" android:textStyle="bold" android:textSize="18sp" android:textColor="#FFFFFF"/>
+    <TextView android:id="@+id/widget_text" android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:text="آية اليوم" android:textSize="13sp" android:textColor="#FFFFFF" android:layout_marginTop="4dp"/>
+</LinearLayout>
