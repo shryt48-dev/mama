@@ -1,0 +1,6 @@
+{
+  "appId": "com.tasneem.app",
+  "appName": "تسنيم",
+  "webDir": "www",
+  "bundledWebRuntime": false
+}
