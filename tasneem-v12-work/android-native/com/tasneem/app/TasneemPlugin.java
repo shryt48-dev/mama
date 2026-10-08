@@ -41,12 +41,12 @@ public class TasneemPlugin extends Plugin {
   @PluginMethod public void setConfig(PluginCall call) {
     JSObject o = call.getData();
     SharedPreferences.Editor e = prefs(getContext()).edit();
-    if (o.has("unlockEnabled")) e.putBoolean("unlockEnabled", o.getBoolean("unlockEnabled"));
-    if (o.has("soundEnabled")) e.putBoolean("soundEnabled", o.getBoolean("soundEnabled"));
-    if (o.has("periodicEnabled")) e.putBoolean("periodicEnabled", o.getBoolean("periodicEnabled"));
-    if (o.has("periodicMin")) e.putInt("periodicMin", o.getInt("periodicMin"));
-    if (o.has("adhanEnabled")) e.putBoolean("adhanEnabled", o.getBoolean("adhanEnabled"));
-    if (o.has("cooldownMin")) e.putInt("cooldownMin", o.getInt("cooldownMin"));
+    if (o.has("unlockEnabled")) e.putBoolean("unlockEnabled", o.optBoolean("unlockEnabled"));
+    if (o.has("soundEnabled")) e.putBoolean("soundEnabled", o.optBoolean("soundEnabled"));
+    if (o.has("periodicEnabled")) e.putBoolean("periodicEnabled", o.optBoolean("periodicEnabled"));
+    if (o.has("periodicMin")) e.putInt("periodicMin", o.optInt("periodicMin"));
+    if (o.has("adhanEnabled")) e.putBoolean("adhanEnabled", o.optBoolean("adhanEnabled"));
+    if (o.has("cooldownMin")) e.putInt("cooldownMin", o.optInt("cooldownMin"));
     e.apply();
     syncUnlockService(getContext());
     call.resolve();
