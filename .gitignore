@@ -1,8 +1,0 @@
-node_modules/
-/www/
-/android/
-.gradle/
-.idea/
-*.iml
-local.properties
-*.zip
