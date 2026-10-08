@@ -1,0 +1,423 @@
+/* =========================================================
+   تسنيم — هوية بصرية: حبر المصحف الأخضر + ذهب الجدول العثماني
+   ========================================================= */
+:root{
+  --ink:#0B211B;          /* حبر أخضر داكن */
+  --ink-2:#12332A;
+  --ink-3:#1B4438;
+  --parchment:#F6EEDC;    /* ورق المصحف */
+  --parchment-2:#EFE3C8;
+  --gold:#C9A227;
+  --gold-soft:#E4C86B;
+  --sage:#7FA893;
+  --sage-dim:#5C8272;
+  --clay:#A8462F;
+  --text:#12332A;
+  --muted:#6B7F76;
+  --radius:18px;
+  --tabbar:66px;
+  --safe-b:env(safe-area-inset-bottom,0px);
+}
+
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0;height:100%}
+body{
+  background:var(--parchment);
+  color:var(--text);
+  font-family:'Tajawal','Noto Kufi Arabic',system-ui,'Segoe UI',sans-serif;
+  direction:rtl;
+  overscroll-behavior-y:none;
+  -webkit-user-select:none;user-select:none;
+}
+button{font-family:inherit;cursor:pointer;border:0;background:none;color:inherit}
+:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+/* ---------- الهيكل ---------- */
+#app{min-height:100%;padding-bottom:calc(var(--tabbar) + var(--safe-b))}
+.screen{display:none;animation:fade .22s ease}
+.screen.active{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+.topbar{
+  background:linear-gradient(180deg,var(--ink) 0%,var(--ink-2) 100%);
+  color:var(--parchment);padding:calc(env(safe-area-inset-top,0px) + 14px) 18px 14px;
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  position:sticky;top:0;z-index:20;
+}
+.topbar h1{margin:0;font-size:19px;font-weight:700;letter-spacing:.2px}
+.topbar .sub{font-size:12px;color:var(--sage);margin-top:2px}
+.topbar .acts{display:flex;gap:6px}
+.iconbtn{width:38px;height:38px;border-radius:12px;display:grid;place-items:center;font-size:18px;
+  background:rgba(255,255,255,.08);color:var(--parchment)}
+.iconbtn:active{background:rgba(255,255,255,.18)}
+
+.wrap{padding:16px}
+
+/* ---------- الجدول: إطار المصحف الذهبي (العنصر المميز) ---------- */
+.jadwal{
+  position:relative;background:var(--parchment);
+  border:1.5px solid var(--gold);border-radius:6px;
+  box-shadow:0 0 0 3px var(--parchment),0 0 0 4.5px var(--gold-soft),0 10px 30px -18px #000;
+  padding:22px 18px;
+}
+.jadwal::before,.jadwal::after{
+  content:'';position:absolute;left:10px;right:10px;height:1px;background:var(--gold-soft);opacity:.5
+}
+.jadwal::before{top:8px}
+.jadwal::after{bottom:8px}
+
+/* ---------- ورد اليوم ---------- */
+.wird-eyebrow{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:14px}
+.wird-from{font-family:'Amiri','Amiri Quran',serif;font-size:26px;line-height:1.9;text-align:center;margin:6px 0 18px}
+.wird-range{display:flex;justify-content:space-between;font-size:13px;color:var(--sage-dim);
+  border-top:1px solid rgba(201,162,39,.35);padding-top:12px}
+.wird-range b{color:var(--text);font-weight:600}
+
+.btnrow{display:flex;gap:10px;margin-top:16px}
+.btn{flex:1;padding:15px;border-radius:14px;font-size:15px;font-weight:700;text-align:center}
+.btn-primary{background:var(--ink);color:var(--parchment)}
+.btn-primary:active{background:var(--ink-3)}
+.btn-gold{background:var(--gold);color:#2B2103}
+.btn-gold:active{background:var(--gold-soft)}
+.btn-ghost{background:rgba(11,33,27,.06);color:var(--ink)}
+
+/* ---------- حرف المصحف: شريط تقدّم الختمة ---------- */
+.foredge{margin:22px 0 6px}
+.foredge-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px}
+.foredge-head .lbl{font-size:13px;color:var(--muted)}
+.foredge-head .val{font-size:13px;font-weight:700}
+.foredge-bars{display:flex;gap:2px;height:34px;align-items:flex-end}
+.foredge-bars i{flex:1;background:var(--parchment-2);border-radius:1px;height:60%;
+  transition:height .3s ease,background .3s ease}
+.foredge-bars i.done{background:var(--gold);height:100%}
+.foredge-bars i.partial{background:var(--gold-soft);height:82%}
+.foredge-cap{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-top:6px}
+
+.late{display:flex;align-items:center;gap:8px;background:rgba(168,70,47,.08);color:var(--clay);
+  padding:11px 14px;border-radius:12px;font-size:13px;margin-top:14px}
+
+/* ---------- بطاقات إحصائية ---------- */
+.stats{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:18px}
+.stat{background:#fff;border:1px solid rgba(11,33,27,.07);border-radius:14px;padding:14px}
+.stat .k{font-size:12px;color:var(--muted)}
+.stat .v{font-size:24px;font-weight:800;margin-top:4px;font-variant-numeric:tabular-nums}
+.stat .v small{font-size:12px;font-weight:500;color:var(--muted)}
+
+/* ---------- الأذكار ---------- */
+.cats{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.cat{border-radius:var(--radius);padding:16px;min-height:104px;display:flex;flex-direction:column;
+  justify-content:flex-end;color:#fff;position:relative;overflow:hidden;text-align:right}
+.cat.wide{grid-column:1/-1;min-height:96px}
+.cat .t{font-size:17px;font-weight:800}
+.cat .s{font-size:12px;opacity:.8;margin-top:2px}
+.cat .n{position:absolute;top:12px;left:14px;font-size:11px;background:rgba(0,0,0,.22);
+  padding:4px 9px;border-radius:20px;font-variant-numeric:tabular-nums}
+.cat::after{content:'';position:absolute;inset:0;background:radial-gradient(120% 90% at 15% 0%,rgba(255,255,255,.18),transparent 60%)}
+.tone-dawn{background:linear-gradient(150deg,#1B6FA8,#0E4C77)}
+.tone-dusk{background:linear-gradient(150deg,#4B2A6B,#241237)}
+.tone-night{background:linear-gradient(150deg,#8E2E67,#4A1237)}
+.tone-sunrise{background:linear-gradient(150deg,#1E7C93,#0C4A59)}
+.tone-green{background:linear-gradient(150deg,#1E7A47,#0C4527)}
+.tone-clay{background:linear-gradient(150deg,#B85A1B,#7A2E0B)}
+.tone-gold{background:linear-gradient(150deg,#B98C10,#6E5107)}
+.tone-olive{background:linear-gradient(150deg,#6D8A24,#3A4A12)}
+
+/* شاشة قراءة الأذكار */
+.dhikr-card{background:#fff;border-radius:var(--radius);padding:20px 18px;margin-bottom:12px;
+  border:1px solid rgba(11,33,27,.07);transition:opacity .25s}
+.dhikr-card.done{opacity:.42}
+.dhikr-text{font-family:'Amiri','Amiri Quran',serif;font-size:21px;line-height:2.15;white-space:pre-line}
+.dhikr-meta{display:flex;justify-content:space-between;align-items:center;margin-top:14px;
+  border-top:1px dashed rgba(11,33,27,.14);padding-top:12px}
+.dhikr-src{font-size:12px;color:var(--muted);flex:1}
+.dhikr-virtue{font-size:12.5px;color:var(--sage-dim);margin-top:10px;line-height:1.7}
+.counter{min-width:66px;height:44px;border-radius:22px;background:var(--ink);color:var(--parchment);
+  display:grid;place-items:center;font-size:17px;font-weight:800;font-variant-numeric:tabular-nums}
+.counter.done{background:var(--gold);color:#2B2103}
+.progressline{position:sticky;top:0;height:3px;background:rgba(11,33,27,.08);z-index:15}
+.progressline i{display:block;height:100%;background:var(--gold);width:0;transition:width .3s}
+
+/* ---------- مواقيت الصلاة ---------- */
+.next-prayer{background:linear-gradient(180deg,var(--ink-2),var(--ink));color:var(--parchment);
+  padding:26px 18px 30px;text-align:center}
+.next-prayer .lbl{font-size:14px;color:var(--sage)}
+.next-prayer .cd{font-size:46px;font-weight:800;letter-spacing:2px;margin:8px 0 2px;font-variant-numeric:tabular-nums}
+.next-prayer .nm{font-size:15px;color:var(--gold-soft)}
+.hijri{background:var(--ink-3);color:var(--parchment);text-align:center;padding:10px;font-size:13px}
+
+.ptimes{padding:8px 0}
+.prow{display:flex;align-items:center;gap:12px;padding:15px 18px;border-bottom:1px solid rgba(11,33,27,.07)}
+.prow.now{background:rgba(201,162,39,.12)}
+.prow .pn{flex:1;font-size:16px;font-weight:600}
+.prow.now .pn{color:#7A5F06}
+.prow .pt{font-size:16px;font-variant-numeric:tabular-nums;color:var(--muted)}
+.prow.now .pt{color:var(--text);font-weight:700}
+.check{width:30px;height:30px;border-radius:9px;border:1.6px solid rgba(11,33,27,.2);display:grid;place-items:center;font-size:15px}
+.check.on{background:var(--ink);border-color:var(--ink);color:var(--gold-soft)}
+
+/* ---------- الفهرس ---------- */
+.tabs{display:flex;background:var(--ink-2)}
+.tabs button{flex:1;padding:14px;color:var(--sage);font-size:15px;font-weight:600;border-bottom:3px solid transparent}
+.tabs button.on{color:var(--parchment);border-bottom-color:var(--gold)}
+.srow{display:flex;align-items:center;gap:14px;padding:14px 18px;border-bottom:1px solid rgba(11,33,27,.06)}
+.snum{width:34px;height:34px;flex:none;display:grid;place-items:center;font-size:12px;color:var(--sage-dim);
+  background:var(--parchment-2);border-radius:50%;font-variant-numeric:tabular-nums}
+.sname{flex:1;font-family:'Amiri',serif;font-size:20px;font-weight:700}
+.smeta{font-size:11.5px;color:var(--muted);text-align:left;line-height:1.6}
+
+/* ---------- القارئ (المصحف) ---------- */
+#reader{position:fixed;inset:0;background:var(--parchment);z-index:60;display:none;flex-direction:column}
+#reader.open{display:flex}
+.rbar{background:var(--ink);color:var(--parchment);display:flex;align-items:center;gap:8px;
+  padding:calc(env(safe-area-inset-top,0px) + 10px) 12px 10px}
+.rbar .ttl{flex:1;text-align:center;overflow:hidden}
+.ttl-main{font-family:'Amiri',serif;font-size:17px;font-weight:700}
+.ttl-sub{font-size:11px;color:var(--gold-soft);margin-top:2px}
+.rpage{flex:1;overflow:auto;padding:12px 10px calc(30px + var(--safe-b));background:var(--parchment);
+  -webkit-overflow-scrolling:touch;overscroll-behavior:contain}
+.mushaf-image-wrap{display:flex;justify-content:center;align-items:flex-start;min-width:100%;min-height:100%}
+.mushaf-image{display:block;width:100%;max-width:100%;height:auto;object-fit:contain;user-select:none;-webkit-user-drag:none;
+  image-rendering:auto;transform-origin:top center;box-shadow:0 1px 8px rgba(0,0,0,.12)}
+.mushaf{font-family:'Amiri Quran','Amiri',serif;font-size:26px;line-height:2.3;
+  text-align:justify;text-align-last:justify;color:#14261F;letter-spacing:.2px}
+.ayah-seg{transition:background-color .25s,box-shadow .25s;border-radius:8px;padding:1px 2px}
+.ayah-seg.playing{background:rgba(201,162,39,.28);box-shadow:0 0 0 3px rgba(201,162,39,.28)}
+.ayah-mark{display:inline-grid;place-items:center;font-family:'Tajawal',sans-serif;
+  font-size:.42em;font-weight:700;color:#2E7D46;width:1.7em;height:1.7em;
+  background:radial-gradient(circle,#DCEEDB 60%,#BFE0BE 100%);border:1px solid #9FCB9E;
+  border-radius:50%;margin:0 3px;vertical-align:middle}
+.sajda-mark{color:#2E7D46;font-size:.85em;margin:0 2px;vertical-align:middle}
+.surah-head{text-align:center;margin:30px 0 20px;padding:12px 8px;position:relative;
+  font-family:'Amiri',serif;font-size:23px;font-weight:700;color:var(--ink-3)}
+.surah-head::before,.surah-head::after{content:'';position:absolute;top:50%;width:26%;height:1.5px;
+  background:var(--gold)}
+.surah-head::before{right:0}
+.surah-head::after{left:0}
+.basmala{text-align:center;font-family:'Amiri Quran','Amiri',serif;font-size:24px;margin:14px 0 22px;color:var(--ink-3)}
+.rfoot{display:flex;justify-content:space-between;align-items:center;padding:12px 16px calc(12px + var(--safe-b));
+  background:var(--ink-2);color:var(--parchment);font-size:13px}
+.rfoot button{padding:9px 16px;border-radius:10px;background:rgba(255,255,255,.1)}
+
+/* ---------- المسبحة والصلاة على النبي ---------- */
+/* ---------- قارئ الذكر المفرد (طراز أخضر) ---------- */
+.dbar{background:#2E7D46;color:#fff;display:flex;align-items:center;gap:10px;
+  padding:14px 16px calc(14px + env(safe-area-inset-top,0px));}
+.dbar .ic{width:34px;height:34px;display:grid;place-items:center;font-size:19px}
+.dbar .ttl{flex:1;text-align:center;font-size:17px;font-weight:700}
+.dprog{background:#EEF2E9;padding:10px 16px;display:flex;align-items:center;gap:12px}
+.dprog .n{font-size:13px;color:#3d5c3d;font-variant-numeric:tabular-nums;white-space:nowrap}
+.dprog .bar{flex:1;height:5px;background:#D8E3D2;border-radius:3px;overflow:hidden}
+.dprog .bar i{display:block;height:100%;background:#2E7D46;width:0;transition:width .3s}
+.dbody{padding:26px 22px 10px;min-height:38vh}
+.dtext{font-family:'Amiri','Amiri Quran',serif;font-size:23px;line-height:2.3;text-align:center}
+.dvirtue{margin-top:22px;font-size:14px;line-height:2;color:#2E7D46;text-align:center}
+.dfoot{display:flex;align-items:center;gap:14px;padding:14px 22px calc(18px + var(--safe-b))}
+.dshare{width:40px;height:40px;flex:none;display:grid;place-items:center;font-size:18px;color:#2E7D46}
+.dcircle{width:78px;height:78px;flex:none;border-radius:50%;border:2px solid #C9D9C2;
+  display:grid;place-items:center;font-size:26px;font-weight:800;color:#1e3a24;transition:transform .1s}
+.dcircle:active{transform:scale(.94)}
+.dtarget{flex:1;font-size:15px;color:#2E7D46;font-weight:700;text-align:center}
+.dgo{position:sticky;bottom:0;display:block;width:100%;padding:16px;background:#2E7D46;color:#fff;
+  font-size:16px;font-weight:700;text-align:center}
+.dgo:active{background:#256238}
+.done-panel{padding:60px 24px;text-align:center}
+.done-panel .em{font-size:52px}
+.done-panel h2{margin:14px 0 6px;font-size:20px;color:#2E7D46}
+
+/* ---------- آية اليوم (ورد اليوم بطراز نختم) ---------- */
+.ayah-card{background:#fff;border-radius:var(--radius);padding:20px 18px;position:relative;overflow:hidden}
+.ayah-top{display:flex;justify-content:space-between;align-items:center;font-size:12px;color:var(--muted);margin-bottom:10px}
+.ayah-top .badge{background:var(--ink);color:var(--gold-soft);border-radius:8px;padding:4px 10px;font-size:11.5px}
+.ayah-txt{font-family:'Amiri','Amiri Quran',serif;font-size:24px;line-height:2.15;text-align:center;margin:8px 0}
+.ayah-loc{text-align:center;font-size:12.5px;color:var(--sage-dim);margin-top:6px}
+.ayah-tafsir{margin-top:16px;padding-top:14px;border-top:1px dashed rgba(11,33,27,.15);
+  font-size:13.5px;line-height:1.95;color:var(--sage-dim)}
+.ayah-tafsir .lbl{font-size:11px;color:var(--gold);font-weight:700;margin-bottom:6px;display:block}
+.ayah-acts{display:flex;gap:10px;margin-top:16px}
+.playbtn{width:52px;height:52px;flex:none;border-radius:50%;background:var(--ink);color:var(--gold-soft);
+  display:grid;place-items:center;font-size:19px}
+.playbtn.playing{background:var(--gold);color:var(--ink)}
+.ayah-nav{flex:1;display:flex;gap:8px}
+.ayah-nav button{flex:1;background:rgba(11,33,27,.06);border-radius:12px;padding:0;font-size:13px;font-weight:600}
+.reciter-row{display:flex;gap:8px;margin-top:12px;overflow-x:auto;padding-bottom:2px}
+.reciter-chip{flex:none;padding:8px 14px;border-radius:999px;background:rgba(11,33,27,.06);font-size:12.5px;white-space:nowrap}
+.reciter-chip.on{background:var(--ink);color:var(--gold-soft);font-weight:700}
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.chip{padding:9px 16px;border-radius:999px;background:rgba(11,33,27,.06);font-size:13px}
+.chip.on{background:var(--ink);color:var(--gold-soft);font-weight:700}
+.dua-strip{margin:16px auto 4px;max-width:520px;text-align:center;font-family:'Amiri',serif;
+  font-size:15px;color:var(--sage-dim);padding:0 20px 8px}
+.exit-dua{position:fixed;inset:0;z-index:99;background:rgba(11,33,27,.94);color:var(--parchment);
+  display:none;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:30px;
+  text-align:center;animation:fade .25s ease}
+.exit-dua.open{display:flex}
+.exit-dua .t{font-family:'Amiri Quran','Amiri',serif;font-size:26px;line-height:1.9}
+.exit-dua .h{font-size:12.5px;color:rgba(246,238,220,.55)}
+
+/* ---------- القبلة ---------- */
+.qibla-card{background:#fff;border-radius:var(--radius);padding:18px;text-align:center;margin-top:12px}
+.qibla-flat-tip{display:flex;align-items:center;gap:10px;background:var(--parchment,#F6EEDC);
+  border-radius:12px;padding:10px 12px;margin-bottom:10px;text-align:right}
+.qibla-flat-phone{flex:0 0 auto;width:34px;height:20px;border:2px solid var(--ink);border-radius:5px;
+  position:relative;background:#fff}
+.qibla-flat-phone::after{content:'';position:absolute;inset:3px;border:1px solid rgba(11,33,27,.25);border-radius:2px}
+.qibla-flat-arrow{position:absolute;top:-16px;left:50%;transform:translateX(-50%);font-size:13px;color:var(--gold)}
+.qibla-flat-txt{font-size:12px;color:var(--ink);line-height:1.6;flex:1}
+.qibla-wrap{position:relative;width:180px;height:180px;margin:10px auto}
+.qibla-dial{width:100%;height:100%;border-radius:50%;border:2px solid rgba(11,33,27,.12);
+  display:grid;place-items:center;position:relative;transition:border-color .25s,box-shadow .25s}
+.qibla-dial.aligned{border-color:#2E995A;box-shadow:0 0 0 6px rgba(46,153,90,.22),0 0 22px 4px rgba(46,153,90,.45)}
+.qibla-needle{position:absolute;top:8px;left:50%;width:3px;height:76px;background:var(--gold);
+  transform-origin:bottom center;border-radius:3px;transition:background .25s}
+.qibla-dial.aligned .qibla-needle{background:#2E995A}
+.qibla-kaaba{position:absolute;top:2px;left:50%;transform:translateX(-50%);font-size:18px}
+.qibla-deg{font-size:15px;font-weight:800;color:var(--ink)}
+.qibla-dist{font-size:12px;color:var(--muted);margin-top:8px}
+
+.tap-area{display:grid;place-items:center;gap:18px;padding:30px 18px}
+
+/* ---------- آية عند فتح التطبيق (تُقرأ ثم تختفي) ---------- */
+#ayah-gate{position:fixed;inset:0;z-index:90;background:linear-gradient(180deg,var(--ink),var(--ink-2));
+  display:none;flex-direction:column;justify-content:center;padding:26px 20px calc(26px + var(--safe-b))}
+#ayah-gate.open{display:flex}
+.gate-eyebrow{text-align:center;color:var(--gold-soft);font-size:12px;margin-bottom:14px}
+.gate-card{background:rgba(246,238,220,.06);border:1px solid rgba(228,200,107,.25);border-radius:22px;
+  padding:22px 18px;backdrop-filter:blur(2px)}
+.gate-top{display:flex;justify-content:space-between;align-items:center;font-size:12px;color:var(--gold-soft);margin-bottom:14px}
+.gate-badge{background:var(--gold);color:var(--ink);border-radius:8px;padding:4px 10px;font-weight:700;font-size:11.5px}
+.gate-text{font-family:'Amiri','Amiri Quran',serif;font-size:25px;line-height:2.2;color:var(--parchment);text-align:center}
+.gate-loc{text-align:center;font-size:12.5px;color:rgba(246,238,220,.6);margin-top:14px}
+.gate-play{width:50px;height:50px;flex:none;border-radius:50%;background:rgba(228,200,107,.15);border:1px solid rgba(228,200,107,.4);
+  color:var(--gold-soft);display:grid;place-items:center;font-size:18px}
+.gate-row{display:flex;align-items:center;justify-content:center;gap:10px;margin-top:16px}
+.gate-tafsir-btn{padding:0 16px;height:50px;border-radius:14px;background:rgba(246,238,220,.08);
+  border:1px solid rgba(246,238,220,.15);color:var(--parchment);font-size:13.5px}
+.gate-actions{margin-top:26px}
+.gate-check{display:block;width:100%;padding:17px;border-radius:16px;background:var(--gold);color:var(--ink);
+  font-size:16px;font-weight:800;text-align:center}
+.gate-check:active{filter:brightness(.93)}
+.gate-skip{display:block;width:100%;text-align:center;padding:12px;color:rgba(246,238,220,.55);font-size:13px;margin-top:10px}
+.gate-progress{text-align:center;color:rgba(246,238,220,.45);font-size:11.5px;margin-top:18px}
+.tapcard{background:#fff;border-radius:var(--radius);padding:22px 18px 26px;border:1px solid rgba(11,33,27,.07);
+  display:flex;flex-direction:column;align-items:center;gap:16px}
+.phrase-select{width:100%;max-width:340px;background:rgba(11,33,27,.05);border:1px solid rgba(11,33,27,.1);
+  border-radius:12px;padding:10px 14px;font-family:'Tajawal',sans-serif;font-size:13px;color:var(--text)}
+.tap-circle{width:min(52vw,200px);aspect-ratio:1;border-radius:50%;display:grid;place-items:center;flex:none;
+  background:radial-gradient(circle at 30% 25%,var(--ink-3),var(--ink));color:var(--parchment);
+  box-shadow:0 0 0 7px rgba(201,162,39,.14),0 14px 32px -18px #000;transition:transform .08s}
+.tap-circle:active{transform:scale(.965)}
+.tap-circle .num{font-size:44px;font-weight:800;font-variant-numeric:tabular-nums;line-height:1}
+.tap-circle .cap{font-size:12px;color:var(--sage);margin-top:8px}
+.phrase{font-family:'Amiri',serif;font-size:20px;text-align:center;line-height:1.9;max-width:360px}
+
+/* ---------- عام ---------- */
+.section-title{font-size:13px;color:var(--muted);margin:22px 4px 10px;font-weight:600}
+.list{background:#fff;border-radius:var(--radius);overflow:hidden;border:1px solid rgba(11,33,27,.07)}
+.item{display:flex;align-items:center;gap:12px;padding:15px 16px;border-bottom:1px solid rgba(11,33,27,.06);width:100%;text-align:right}
+.item:last-child{border-bottom:0}
+.item .ic{width:30px;text-align:center;font-size:17px}
+.item .lb{flex:1;font-size:15px}
+.item .rt{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
+select,input[type=number],input[type=text]{font-family:inherit;font-size:14px;padding:9px 12px;border-radius:10px;
+  border:1px solid rgba(11,33,27,.16);background:#fff;color:var(--text);max-width:56%}
+.switch{width:48px;height:28px;border-radius:20px;background:rgba(11,33,27,.16);position:relative;flex:none;transition:background .2s}
+.switch i{position:absolute;top:3px;right:3px;width:22px;height:22px;border-radius:50%;background:#fff;transition:right .2s;box-shadow:0 1px 3px rgba(0,0,0,.25)}
+.switch.on{background:var(--sage-dim)}
+.switch.on i{right:23px}
+
+/* ---------- شريط التبويبات ---------- */
+.tabbar{position:fixed;bottom:0;left:0;right:0;height:calc(var(--tabbar) + var(--safe-b));
+  padding-bottom:var(--safe-b);background:var(--ink);display:flex;z-index:50;
+  box-shadow:0 -6px 20px -12px #000}
+.tabbar button{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
+  color:var(--sage-dim);font-size:11px}
+.tabbar button.on{color:var(--gold-soft)}
+.tabbar .ti{font-size:20px;line-height:1}
+
+/* ---------- نافذة/تنبيه ---------- */
+.sheet{position:fixed;inset:0;background:rgba(6,18,14,.55);z-index:70;display:none;align-items:flex-end}
+.sheet.open{display:flex}
+.sheet-in{background:var(--parchment);width:100%;border-radius:22px 22px 0 0;padding:20px 18px calc(24px + var(--safe-b));
+  max-height:86vh;overflow-y:auto;animation:up .25s ease}
+@keyframes up{from{transform:translateY(30px)}to{transform:none}}
+.toast{position:fixed;bottom:calc(var(--tabbar) + var(--safe-b) + 16px);right:50%;transform:translateX(50%);
+  background:var(--ink);color:var(--parchment);padding:12px 20px;border-radius:30px;font-size:14px;z-index:90;
+  opacity:0;pointer-events:none;transition:opacity .25s}
+.toast.show{opacity:1}
+.empty{text-align:center;padding:50px 24px;color:var(--muted);font-size:14.5px;line-height:2}
+.bar{height:8px;background:rgba(11,33,27,.1);border-radius:6px;overflow:hidden;margin:10px 0}
+.bar i{display:block;height:100%;background:var(--gold);width:0;transition:width .3s}
+
+/* ---------- Tasneem PLUS ---------- */
+#plus-fab{position:fixed;left:16px;bottom:calc(var(--tabbar) + 16px);z-index:120;width:54px;height:54px;border-radius:18px;background:var(--ink);color:var(--gold-soft);font-size:25px;box-shadow:0 8px 24px rgba(0,0,0,.25)}
+#plus-modal{display:none;position:fixed;inset:0;z-index:110;background:var(--parchment);overflow:auto;padding:env(safe-area-inset-top,0px) 16px 100px}
+#plus-modal.open{display:block}
+.plus-head{position:sticky;top:0;background:var(--parchment);padding:16px 0;display:flex;justify-content:space-between;align-items:center;z-index:2}
+.plus-head b{display:block;font-size:22px}.plus-head small{color:var(--muted)}
+.plus-head button{font-size:22px}
+.plus-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.plus-card{background:rgba(255,255,255,.45);border:1px solid rgba(11,33,27,.12);border-radius:16px;padding:15px;text-align:right;display:flex;flex-direction:column;gap:5px;min-height:100px}
+.plus-card b{font-size:15px}.plus-card small,.plus-muted{color:var(--muted);font-size:12px}
+.plus-panel{margin-top:16px;border-top:1px solid rgba(11,33,27,.12);padding-top:15px}
+.plus-panel h3{margin:0 0 12px}.plus-input,.plus-panel select,.plus-panel input{width:100%;padding:11px;border-radius:12px;border:1px solid rgba(11,33,27,.15);background:rgba(255,255,255,.5);font:inherit}
+.plus-results{margin-top:10px;display:grid;gap:8px}
+.plus-result{padding:12px;border-radius:13px;background:rgba(255,255,255,.55);text-align:right;border:1px solid rgba(11,33,27,.08)}
+.plus-result b,.plus-result span{display:block}.plus-result span{margin-top:5px;font-family:Amiri,serif;line-height:1.8}
+.plus-btn{margin-top:12px;width:100%;padding:12px;border-radius:13px;background:var(--ink);color:var(--parchment);font-weight:700}.plus-btn.secondary{background:var(--clay)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}.two label{font-size:12px}.two input,.two select{margin-top:5px}
+.mem-card{padding:20px;border:1px solid var(--gold);border-radius:16px;text-align:center;margin:10px 0;min-height:120px}.mem-card #mem-hidden{margin-top:25px;padding:18px;border-radius:12px;background:rgba(201,162,39,.12);cursor:pointer}.mem-card #mem-hidden.revealed{font-family:Amiri,serif;font-size:24px;line-height:2;background:transparent}
+.plus-note{padding:12px;border-bottom:1px solid rgba(11,33,27,.1)}.plus-note p{margin:7px 0;font-family:Amiri,serif}
+.offline-toggle{display:flex;justify-content:space-between;align-items:center;padding:15px;border-radius:14px;background:rgba(201,162,39,.1)}
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.stat-grid div{padding:15px;border-radius:14px;background:rgba(255,255,255,.5);text-align:center}.stat-grid b{display:block;font-size:24px}.stat-grid small{color:var(--muted)}
+.ayah-tools{display:inline-flex;gap:2px;vertical-align:middle;margin-right:4px}.ayah-tool{font-size:12px;padding:1px 3px;opacity:.75}
+html.tasneem-dark{--parchment:#151a18;--parchment-2:#202723;--text:#eee9dc;--muted:#aab7b1;--ink:#07110e;--ink-2:#10241d}.tasneem-dark body{background:var(--parchment);color:var(--text)}.tasneem-dark .plus-card,.tasneem-dark .plus-result,.tasneem-dark .stat-grid div,.tasneem-dark .plus-input,.tasneem-dark .plus-panel select,.tasneem-dark .plus-panel input{background:rgba(255,255,255,.06);color:var(--text)}
+/* Tasneem Ultimate extensions */
+.holy-mode{background:linear-gradient(180deg,#f7f1df,#efe6cd)!important}
+#plus-modal input[type=range]{accent-color:var(--gold);width:100%}
+.plus-card:active{transform:scale(.985)}
+
+
+/* ================= إصلاحات النسخة المصحّحة ================= */
+:root{--ayah-fs:24px}
+.ayah-txt{font-size:var(--ayah-fs)}
+/* إخفاء زر ✨ أثناء القراءة وفتح PLUS */
+body.reader-open #plus-fab,body.plus-open #plus-fab{display:none}
+/* نافذة آيات الصفحة */
+.pa-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.pa-head h3{margin:0}
+.pa-item{padding:12px 0;border-bottom:1px solid rgba(11,33,27,.1)}
+.pa-item.playing{background:rgba(201,162,75,.15);border-radius:12px;padding-left:8px;padding-right:8px}
+.pa-ref{font-size:12px;color:var(--muted);margin-bottom:4px}
+.pa-txt{font-family:'Amiri','Amiri Quran',serif;font-size:var(--ayah-fs);line-height:2.1}
+.pa-acts{display:flex;gap:6px;margin-top:6px;flex-wrap:wrap}
+.pa-acts button{padding:7px 12px;border-radius:10px;background:rgba(11,33,27,.07);font-size:14px}
+.pa-acts button.on{background:var(--gold);color:#fff}
+.pa-box{margin-top:8px;font-size:14px;line-height:1.9;color:var(--text)}
+.pa-box textarea{width:100%;min-height:70px;padding:10px;border-radius:12px;border:1px solid rgba(11,33,27,.2);
+  font-family:inherit;font-size:14px;background:#fff}
+.pa-box .save{margin-top:6px;padding:8px 16px;border-radius:10px;background:var(--ink);color:var(--parchment)}
+.plus-btn.secondary{background:transparent;color:var(--ink);border:1px solid var(--ink)}
+body.plus-open .toast{z-index:200}
+.plus-panel textarea{border:1px solid rgba(11,33,27,.2);border-radius:12px;padding:10px;font-family:inherit}
+
+/* ================= القارئ بملء الشاشة ================= */
+#reader{background:#fff}
+#reader .rbar,#reader .rfoot{position:absolute;left:0;right:0;z-index:5;background:rgba(7,17,14,.92);
+  transition:transform .22s ease,opacity .22s ease}
+#reader .rbar{top:0}
+#reader .rfoot{bottom:0}
+#reader.immersive .rbar{transform:translateY(-100%);opacity:0;pointer-events:none}
+#reader.immersive .rfoot{transform:translateY(100%);opacity:0;pointer-events:none}
+#reader .rpage{position:absolute;inset:0;display:flex;padding:env(safe-area-inset-top,0px) 0 env(safe-area-inset-bottom,0px);
+  background:#fff;overflow:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
+#reader .mushaf-image-wrap{display:block;flex:none;margin:auto;width:100%;height:100%;min-width:0;min-height:0}
+#reader .mushaf-image{display:block;width:100%;height:100%;max-width:none;object-fit:contain;box-shadow:none;
+  user-select:none;-webkit-user-drag:none}
+/* شريط "يُتلى الآن" أثناء تشغيل الصوت */
+#r-now{position:absolute;left:0;right:0;bottom:env(safe-area-inset-bottom,0px);z-index:4;display:none;
+  background:rgba(7,17,14,.9);color:var(--gold-soft);padding:8px 14px;font-family:'Amiri',serif;font-size:17px;
+  line-height:1.9;text-align:center}
+#reader:not(.immersive) #r-now{bottom:calc(62px + env(safe-area-inset-bottom,0px))}
+#r-now.show{display:block}
+#r-now small{display:block;font-family:'Tajawal',sans-serif;font-size:11px;opacity:.75}
