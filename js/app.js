@@ -227,6 +227,7 @@
         '<div class="sub">' + gregText(now) + ' • ' + toHijri(now).text + '</div></div>' +
         '<div class="acts"><button class="iconbtn" data-action="open-settings">⚙</button></div></div>' +
       '<div class="wrap">' +
+        '<div class="dua-note dua-top">اللهم ارزق جيهان و والديها الفردوس الأعلى</div>' +
         (cur ? renderAyahCard(cur, reciterKey, reciters) :
           '<div class="empty">📥 المصحف لسه مش متحمّل على الجهاز.<br>' +
           '<button class="btn btn-primary" style="margin-top:14px" data-action="download-quran">نزّل المصحف الآن</button></div>') +
@@ -487,7 +488,7 @@
     if (!cat) return;
     catState = {
       cat: cat, index: 0,
-      done: cat.items.map(function (it) { return it.count <= 1; }), // العناصر ذات المرة الواحدة تُعتبر بدون عدّاد
+      done: cat.items.map(function () { return false; }), // الذكر ذو المرة الواحدة لا يُحتسب إلا بعد ضغط المستخدم على «قراءة»
       count: cat.items.map(function () { return 0; })
     };
     drawCategory();
@@ -1633,7 +1634,7 @@
       case 'pin-widget': {
         if (!nativeAvailable() || !CAP.Tasneem.requestPinWidget) { toast('الميزة دي متاحة بس في نسخة الأندرويد'); break; }
         CAP.Tasneem.requestPinWidget().then(function (r) {
-          if (r && r.supported === false) toast('جهازك مش بيدعم الإضافة التلقائية — أضِفها يدويًا من قائمة الودجات');
+          if (r && r.supported === false) toast('الودجت غير متاح في هذه النسخة');
         }).catch(function () {});
         break;
       }

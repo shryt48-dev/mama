@@ -17,8 +17,8 @@ public class TasneemPlugin extends Plugin {
   static final String PREF = "tasneem_native";
   static final int AYAH_ID = 2200;
   static final String AYAH_CHANNEL = "tasneem_ayah";
-  static final String SALAWAT_CHANNEL = "tasneem_salawat";
-  static final String SALAWAT_SILENT_CHANNEL = "tasneem_salawat_silent";
+  static final String SALAWAT_CHANNEL = "tasneem_salawat_v2"; // v2: قناة صامتة (الصوت من SalawatSound)
+  static final String SALAWAT_SILENT_CHANNEL = SALAWAT_CHANNEL; // للتوافق مع الأكواد القديمة
   static final String ADHAN_CHANNEL = "tasneem_adhan";
   static final String ADHAN_URL = "https://upload.wikimedia.org/wikipedia/commons/e/e7/Adhan.ogg";
 
@@ -118,11 +118,16 @@ public class TasneemPlugin extends Plugin {
     NotificationManager nm=(NotificationManager)c.getSystemService(Context.NOTIFICATION_SERVICE);
     NotificationChannel ay=new NotificationChannel(AYAH_CHANNEL,"آية اليوم",NotificationManager.IMPORTANCE_DEFAULT);
     NotificationChannel sal=new NotificationChannel(SALAWAT_CHANNEL,"الصلاة على النبي",NotificationManager.IMPORTANCE_DEFAULT);
-    NotificationChannel salSilent=new NotificationChannel(SALAWAT_SILENT_CHANNEL,"الصلاة على النبي (صامت)",NotificationManager.IMPORTANCE_DEFAULT);
-    salSilent.setSound(null,null); salSilent.enableVibration(false);
+    sal.setDescription("تنبيه الصلاة على النبي ﷺ عند فتح الهاتف"); sal.setSound(null,null); sal.enableVibration(false);
     NotificationChannel ad=new NotificationChannel(ADHAN_CHANNEL,"الأذان",NotificationManager.IMPORTANCE_HIGH);
     ad.setDescription("تنبيه الأذان مع صوت الأذان وزر الإيقاف"); ad.enableVibration(true); ad.setSound(null,null);
-    nm.createNotificationChannel(ay); nm.createNotificationChannel(sal); nm.createNotificationChannel(salSilent); nm.createNotificationChannel(ad);
+    // القنوات القديمة كانت بصوت النظام الافتراضي (وأندرويد مابيغيّرش صوت قناة موجودة) — نمسحها مرة واحدة
+    SharedPreferences pr=prefs(c);
+    if(!pr.getBoolean("salawat_channels_v2",false)){
+      try{ nm.deleteNotificationChannel("tasneem_salawat"); nm.deleteNotificationChannel("tasneem_salawat_silent"); }catch(Exception ignored){}
+      pr.edit().putBoolean("salawat_channels_v2",true).apply();
+    }
+    nm.createNotificationChannel(ay); nm.createNotificationChannel(sal); nm.createNotificationChannel(ad);
   }
   void ensureChannels(){ensureChannels(getContext());}
 

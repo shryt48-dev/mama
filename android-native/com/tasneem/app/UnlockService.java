@@ -19,7 +19,7 @@ public class UnlockService extends Service {
     if (Build.VERSION.SDK_INT >= 34) startForeground(ID, n, ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE);
     else startForeground(ID, n);
     receiver = new UnlockReceiver();
-    registerReceiver(receiver, new IntentFilter(Intent.ACTION_USER_PRESENT));
+    androidx.core.content.ContextCompat.registerReceiver(this, receiver, new IntentFilter(Intent.ACTION_USER_PRESENT), androidx.core.content.ContextCompat.RECEIVER_NOT_EXPORTED);
   }
   @Override public int onStartCommand(Intent i, int f, int id) { return START_STICKY; }
   @Override public void onDestroy() { try { if (receiver != null) unregisterReceiver(receiver); } catch (Exception ignored) {} super.onDestroy(); }

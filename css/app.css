@@ -218,7 +218,7 @@ button{font-family:inherit;cursor:pointer;border:0;background:none;color:inherit
   display:grid;place-items:center;font-size:26px;font-weight:800;color:#1e3a24;transition:transform .1s}
 .dcircle:active{transform:scale(.94)}
 .dtarget{flex:1;font-size:15px;color:#2E7D46;font-weight:700;text-align:center}
-.dgo{position:sticky;bottom:0;display:block;width:100%;padding:16px;background:#2E7D46;color:#fff;
+.dgo{position:sticky;bottom:calc(var(--tabbar) + var(--safe-b));display:block;width:100%;padding:16px;background:#2E7D46;color:#fff;
   font-size:16px;font-weight:700;text-align:center}
 .dgo:active{background:#256238}
 .done-panel{padding:60px 24px;text-align:center}
@@ -421,3 +421,6 @@ body.plus-open .toast{z-index:200}
 #reader:not(.immersive) #r-now{bottom:calc(62px + env(safe-area-inset-bottom,0px))}
 #r-now.show{display:block}
 #r-now small{display:block;font-family:'Tajawal',sans-serif;font-size:11px;opacity:.75}
+
+.dua-note{margin:22px 16px 0;padding:14px;text-align:center;font-size:15px;line-height:1.9;opacity:.8}
+.dua-top{margin:0 0 14px;padding:8px 6px}

@@ -9,7 +9,7 @@ var ASSETS = [
   './data/quran.json',
   './js/quran-meta.js', './js/adhkar-data.js', './js/prayer-times.js',
   './js/store.js', './js/quran.js', './js/recitation-ai.js', './js/tasneem-plus.js',
-  './js/cloud-sync.js', './js/app.js',
+  './js/firebase-config.js', './js/cloud-sync.js', './js/app.js',
   './icons/icon-192.png', './icons/icon-512.png'
 ];
 

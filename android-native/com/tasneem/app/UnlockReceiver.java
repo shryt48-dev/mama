@@ -12,10 +12,14 @@ public class UnlockReceiver extends BroadcastReceiver{
   NotificationManager nm=(NotificationManager)c.getSystemService(Context.NOTIFICATION_SERVICE);
   Intent done=new Intent(c,NotificationActionReceiver.class).setAction("com.tasneem.MARK_SALAWAT");
   PendingIntent dp=PendingIntent.getBroadcast(c,2400,done,PendingIntent.FLAG_UPDATE_CURRENT|PendingIntent.FLAG_IMMUTABLE);
-  String channel=p.getBoolean("soundEnabled",true)?TasneemPlugin.SALAWAT_CHANNEL:TasneemPlugin.SALAWAT_SILENT_CHANNEL;
-  Notification n=new NotificationCompat.Builder(c,channel).setSmallIcon(com.tasneem.app.R.drawable.ic_stat_mosque)
+  Intent open=c.getPackageManager().getLaunchIntentForPackage(c.getPackageName());
+  PendingIntent op=open==null?null:PendingIntent.getActivity(c,2401,open,PendingIntent.FLAG_UPDATE_CURRENT|PendingIntent.FLAG_IMMUTABLE);
+  // القناة صامتة عمدًا: الصوت بيتشغّل من SalawatSound عشان يبقى مضمون ويحترم إعداد «صوت مع تنبيه فتح الهاتف»
+  Notification n=new NotificationCompat.Builder(c,TasneemPlugin.SALAWAT_CHANNEL).setSmallIcon(com.tasneem.app.R.drawable.ic_stat_mosque)
     .setContentTitle("الصلاة على النبي ﷺ").setContentText("اللَّهُمَّ صَلِّ وَسَلِّمْ عَلَىٰ نَبِيِّنَا مُحَمَّدٍ")
-    .setAutoCancel(true).addAction(new NotificationCompat.Action(0,"✓ تمّت",dp)).build();
+    .setAutoCancel(true).setSound(null).setContentIntent(op)
+    .addAction(new NotificationCompat.Action(0,"✓ تمّت",dp)).build();
   nm.notify(2400,n);
+  if(p.getBoolean("soundEnabled",true)) SalawatSound.play(c);
  }
 }
