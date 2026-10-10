@@ -2,7 +2,7 @@
    - الكود (HTML/JS/CSS): الشبكة أولًا ثم الكاش، فالتحديثات توصل فورًا
    - الصور والنموذج والخطوط: الكاش أولًا
    - كاش الصوت (tasneem-audio-*) محفوظ ولا يُحذف عند التحديث */
-var CACHE = 'tasneem-v4';
+var CACHE = 'tasneem-v5';
 var ASSETS = [
   './', './index.html', './manifest.webmanifest',
   './css/app.css',
