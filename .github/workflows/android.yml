@@ -58,6 +58,9 @@ jobs:
       - name: Add Android platform
         run: npx cap add android
 
+      - name: Remove default launcher icons (ours replace them)
+        run: find android/app/src/main/res -name 'ic_launcher*.webp' -delete
+
       - name: Apply native layer (Java, sounds, manifest, MainActivity)
         run: python3 android-native/patch_android_project.py android
 
