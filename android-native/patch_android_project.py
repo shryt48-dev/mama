@@ -21,6 +21,7 @@ PERMS = [
     "android.permission.RECEIVE_BOOT_COMPLETED", "android.permission.SCHEDULE_EXACT_ALARM",
     "android.permission.USE_EXACT_ALARM", "android.permission.FOREGROUND_SERVICE",
     "android.permission.FOREGROUND_SERVICE_SPECIAL_USE", "android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK",
+    "android.permission.RECORD_AUDIO", "android.permission.MODIFY_AUDIO_SETTINGS",
 ]
 COMPONENTS = {
     ".UnlockService": '''<service android:name=".UnlockService" android:exported="false" android:foregroundServiceType="specialUse">

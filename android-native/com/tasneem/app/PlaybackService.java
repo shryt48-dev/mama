@@ -19,7 +19,7 @@ public class PlaybackService extends Service {
     Intent open = getPackageManager().getLaunchIntentForPackage(getPackageName());
     PendingIntent op = PendingIntent.getActivity(this, ID, open, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
     Notification n = new NotificationCompat.Builder(this, "tasneem_playback").setSmallIcon(R.drawable.ic_stat_mosque)
-      .setContentTitle("تسنيم").setContentText("تلاوة المصحف شغّالة — افتح التطبيق للإيقاف")
+      .setContentTitle("جيهان").setContentText("تلاوة المصحف شغّالة — افتح التطبيق للإيقاف")
       .setOngoing(true).setContentIntent(op).setPriority(NotificationCompat.PRIORITY_LOW).build();
     if (Build.VERSION.SDK_INT >= 29) startForeground(ID, n, ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK);
     else startForeground(ID, n);

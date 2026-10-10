@@ -14,7 +14,7 @@ public class UnlockService extends Service {
       ((NotificationManager) getSystemService(NOTIFICATION_SERVICE)).createNotificationChannel(ch);
     }
     Notification n = new NotificationCompat.Builder(this, "tasneem_service").setSmallIcon(R.drawable.ic_stat_mosque)
-      .setContentTitle("تسنيم").setContentText("تذكير الصلاة على النبي ﷺ عند فتح الهاتف").setOngoing(true)
+      .setContentTitle("جيهان").setContentText("تذكير الصلاة على النبي ﷺ عند فتح الهاتف").setOngoing(true)
       .setPriority(NotificationCompat.PRIORITY_MIN).build();
     if (Build.VERSION.SDK_INT >= 34) startForeground(ID, n, ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE);
     else startForeground(ID, n);

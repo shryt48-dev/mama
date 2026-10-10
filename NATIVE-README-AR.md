@@ -1,4 +1,4 @@
-# إصلاح Android Native — تسنيم
+# إصلاح Android Native — جيهان
 
 تمت إضافة طبقة Android Native داخل المشروع بدل الاعتماد على إضافة `Tasneem` مفقودة.
 

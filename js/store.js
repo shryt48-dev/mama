@@ -16,7 +16,7 @@
   function defaults() {
     return {
       settings: {
-        method: 'egypt', asr: 'standard', lat: null, lng: null, city: '',
+        method: 'egyptian', asr: 'standard', lat: null, lng: null, city: '',
         adhanEnabled: true, adhanSound: 'makkah', silentMode: false,
         unlockDhikrEnabled: true, unlockCooldownMin: 0, unlockSalawatSound: true, lockAyahEnabled: true,
         periodicDhikr: true, periodicEveryMin: 60,
@@ -33,6 +33,8 @@
         quranChars: { total: 0, history: {} }
       },
       adhkarDone: {},        // { 'morning': { total, history:{date:n} } }
+      adhkarProgress: {},    // { 'morning': { date, index, done[], count[] } }
+      lastPage: 0,
       prayers: {},           // { 'YYYY-MM-DD': { fajr:true, ... } }
       prayerTotal: 0,
       khatma: {
@@ -109,8 +111,36 @@
   }
 
   /* ---------- الأذكار ---------- */
+  /* مكان الوقوف في كل قسم أذكار — بيتحفظ لو خرجت في النص وترجع تكمّل منه.
+     أقسام الصباح/المساء/النوم/الاستيقاظ/بعد الصلاة/المسجد بتبدأ من جديد كل يوم، والباقي بيفضل محفوظ. */
+  var DAILY_CATS = ['morning', 'evening', 'sleep', 'wake', 'after-prayer', 'mosque'];
+  function adhkarProgress(catId, len) {
+    load();
+    var p = state.adhkarProgress && state.adhkarProgress[catId];
+    if (!p) return null;
+    if (DAILY_CATS.indexOf(catId) > -1 && p.date !== today()) return null;
+    if (!p.done || !p.count || p.done.length !== len || p.count.length !== len) return null;
+    if (p.index < 0 || p.index >= len) return null;
+    return p;
+  }
+  function setAdhkarProgress(catId, p) {
+    load();
+    if (!state.adhkarProgress) state.adhkarProgress = {};
+    state.adhkarProgress[catId] = { date: today(), index: p.index, done: p.done.slice(), count: p.count.slice() };
+    save();
+  }
+  function clearAdhkarProgress(catId) {
+    load();
+    if (state.adhkarProgress && state.adhkarProgress[catId]) { delete state.adhkarProgress[catId]; save(); }
+  }
+
+  /* آخر صفحة مصحف وقفت عندها (أي قراءة، مش بس ورد اليوم) */
+  function setLastPage(p) { load(); state.lastPage = p; state.lastPageAt = today(); save(); }
+  function lastPage() { load(); return state.lastPage || 0; }
+
   function markAdhkarDone(catId) {
     load();
+    if (state.adhkarProgress && state.adhkarProgress[catId]) delete state.adhkarProgress[catId];
     var a = state.adhkarDone[catId] || (state.adhkarDone[catId] = { total: 0, history: {} });
     var t = today();
     a.total += 1;
@@ -330,6 +360,8 @@
     load: load, save: save, today: today,
     bump: bump, counterStats: counterStats, quranCharStats: quranCharStats,
     markAdhkarDone: markAdhkarDone, adhkarStats: adhkarStats,
+    adhkarProgress: adhkarProgress, setAdhkarProgress: setAdhkarProgress, clearAdhkarProgress: clearAdhkarProgress,
+    setLastPage: setLastPage, lastPage: lastPage,
     togglePrayer: togglePrayer, prayerStats: prayerStats,
     khatma: khatma, startKhatma: startKhatma, completeWird: completeWird, khatmaStats: khatmaStats,
     gateState: gateState, shouldShowGate: shouldShowGate, markGateShown: markGateShown, markGateRead: markGateRead,

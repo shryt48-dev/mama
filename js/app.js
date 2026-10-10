@@ -1,5 +1,5 @@
 /* =========================================================
-   تسنيم — منطق التطبيق
+   جيهان — منطق التطبيق
    ========================================================= */
 (function () {
   'use strict';
@@ -235,6 +235,7 @@
           '<button class="btn btn-primary" data-action="read-wird">اقرأ الورد كاملاً</button>' +
           '<button class="btn btn-gold" data-action="finish-wird">أتممت القراءة</button>' +
         '</div>' +
+        resumeButton() +
         (ks.behindBy > 0 ? '<div class="late">⚠ أنت متأخر عن ختمتك بـ ' + ks.behindBy + ' ' +
           (ks.behindBy === 1 ? 'ورد' : 'أوراد') + '</div>' : '') +
         '<div class="foredge">' +
@@ -253,6 +254,14 @@
       '</div>' + duaStrip();
 
     if (cur && wirdTafsirOpen) loadTafsirInto('#ayah-tafsir-box', cur.s, cur.a);
+  }
+
+  function resumeButton() {
+    var lp = Store.lastPage();
+    if (!lp || !Quran.ready()) return '';
+    var a = Quran.firstAyahOfPage(lp);
+    return '<button class="btn btn-ghost resume-btn" data-action="resume-read">📖 كمّل من حيث وقفت — صفحة ' + lp +
+      (a ? ' (' + esc(Quran.surahName(a.s)) + ')' : '') + '</button>';
   }
 
   function renderAyahCard(a, reciterKey, reciters) {
@@ -318,8 +327,8 @@
     }).catch(audioFail);
   }
 
-  var IN_APP_DUA = 'اللَّهُمَّ ارْزُقْ مَحْمُود شَرِيف وَوَالِدَيْهِ حُسْنَ الْخَاتِمَةِ';
-  var EXIT_DUA = 'اللَّهُمَّ ارْزُقْ مَحْمُود شَرِيف وَوَالِدَيْهِ حُسْنَ الْخَاتِمَةِ';
+  var IN_APP_DUA = 'اللَّهُمَّ ارْزُقْ جِيهَانَ وَوَالِدَيْهَا الْفِرْدَوْسَ الْأَعْلَى';
+  var EXIT_DUA = 'اللَّهُمَّ ارْزُقْ جِيهَانَ وَوَالِدَيْهَا الْفِرْدَوْسَ الْأَعْلَى';
   function duaStrip() {
     return '<div class="dua-strip">🤲 ' + IN_APP_DUA + '</div>';
   }
@@ -463,8 +472,10 @@
     var cards = ADHKAR_CATEGORIES.map(function (c, i) {
       var s = Store.adhkarStats(c.id);
       var wide = (i < 2) ? ' wide' : '';
+      var pr = Store.adhkarProgress(c.id, c.items.length);
+      var cont = (pr && pr.index > 0) ? ' • متابعة ' + (pr.index + 1) + '/' + c.items.length : '';
       return '<button class="cat tone-' + c.tone + wide + '" data-action="open-cat" data-cat="' + c.id + '">' +
-        '<span class="n">اليوم ' + s.today + ' • الكل ' + s.total + '</span>' +
+        '<span class="n">اليوم ' + s.today + ' • الكل ' + s.total + cont + '</span>' +
         '<span class="t">' + c.title + '</span><span class="s">' + c.subtitle + '</span></button>';
     }).join('');
 
@@ -491,9 +502,15 @@
       done: cat.items.map(function () { return false; }), // الذكر ذو المرة الواحدة لا يُحتسب إلا بعد ضغط المستخدم على «قراءة»
       count: cat.items.map(function () { return 0; })
     };
+    var sp = Store.adhkarProgress(id, cat.items.length), resumed = false;
+    if (sp) {
+      catState.index = sp.index; catState.done = sp.done; catState.count = sp.count;
+      resumed = sp.index > 0 || sp.done.some(Boolean) || sp.count.some(function (n) { return n > 0; });
+    }
     drawCategory();
     activeTab = 'adhkar-detail';
     showScreen('s-adhkar');
+    if (resumed) toast('كمّلنا من الذكر رقم ' + (catState.index + 1));
   }
 
   function targetLabel(n) {
@@ -522,8 +539,9 @@
       '<div class="dbar"><button class="ic" data-action="back-adhkar">▶</button>' +
         '<div class="ttl">' + esc(cat.title) + '</div>' +
         '<button class="ic" data-action="reset-dhikr">↻</button></div>' +
-      '<div class="dprog"><span class="n">' + total + '/' + (i + 1) + '</span>' +
+      '<div class="dprog"><span class="n" dir="ltr">' + (i + 1) + ' / ' + total + '</span>' +
         '<div class="bar"><i style="width:' + Math.round(((i + (finished ? 1 : 0)) / total) * 100) + '%"></i></div></div>' +
+      (i > 0 ? '<button class="drestart" data-action="restart-cat">↺ البدء من الأول</button>' : '') +
       '<div class="dbody">' +
         '<div class="dtext">' + esc(it.text) + '</div>' +
         (it.virtue ? '<div class="dvirtue">' + esc(it.virtue) + (it.source ? ' (' + esc(it.source) + ')' : '') + '</div>' : '') +
@@ -537,6 +555,7 @@
       '</div>' +
       '<button class="dgo" data-action="dhikr-go">' + (finished ? 'التالي' : 'قراءة') + '</button>';
     bindSwipe();
+    Store.setAdhkarProgress(cat.id, catState);
   }
 
   /* سحب اليد يمينًا/يسارًا للتنقل بين الأذكار بدون لمس الأزرار */
@@ -822,7 +841,7 @@
       '<div class="tabs">' +
         '<button data-action="index-tab" data-t="surah" class="' + (indexTab === 'surah' ? 'on' : '') + '">السور</button>' +
         '<button data-action="index-tab" data-t="juz" class="' + (indexTab === 'juz' ? 'on' : '') + '">الأجزاء</button>' +
-      '</div>' + body;
+      '</div>' + resumeButton() + body;
   }
 
   /* =========================================================
@@ -867,8 +886,6 @@
         '<div class="list">' +
           switchItem('📖', 'آية تظهر عند فتح التطبيق', 'ayahGateEnabled', st.ayahGateEnabled) +
           switchItem('📗', 'تذكير بقراءة ورد اليوم', 'wirdReminder', st.wirdReminder) +
-          '<button class="item" data-action="pin-widget"><span class="ic">🏠</span>' +
-            '<span class="lb">إضافة آية على الشاشة الرئيسية</span></button>' +
           switchItem('🔔', 'أذان عند دخول الوقت', 'adhanEnabled', st.adhanEnabled) +
           switchItem('🤍', 'صلاة على النبي عند فتح الهاتف', 'unlockDhikrEnabled', st.unlockDhikrEnabled) +
           switchItem('🌙', 'آية فوق أي تطبيق عند فتح قفل الهاتف', 'lockAyahEnabled', st.lockAyahEnabled) +
@@ -916,7 +933,7 @@
         '</div>' +
         '<div class="section-title">مشاركة</div>' +
         '<div class="list">' +
-          '<button class="item" data-action="share-app"><span class="ic">📤</span><span class="lb">شارك تسنيم مع حد تحبه</span></button>' +
+          '<button class="item" data-action="share-app"><span class="ic">📤</span><span class="lb">شارك جيهان مع حد تحبه</span></button>' +
         '</div>' +
         '<div style="height:20px"></div>' +
       '</div>';
@@ -1002,7 +1019,7 @@
     var prev = document.querySelector('.pa-item.playing');
     if (prev) prev.classList.remove('playing');
     var el = document.querySelector('.pa-item[data-s="' + a.s + '"][data-a="' + a.a + '"]');
-    if (el) el.classList.add('playing');    drawImageHighlight(a);
+    if (el) el.classList.add('playing');
   }
 
   /* تظليل أسطر الآية الحالية فوق صورة المصحف (تقريبي: بحسب نسبة الحروف داخل الصفحة، الأسطر الـ15) */
@@ -1011,6 +1028,7 @@
   }
   function drawImageHighlight(a) {
     clearImageHighlight();
+    return; /* تم إلغاء التظليل فوق صورة المصحف — الآية الحالية بتظهر أسفل الصفحة فقط */
     if (readerPage <= 2) return;
     var img = $('#r-page .mushaf-image'); if (!img) return;
     if (!img.complete || !img.naturalWidth) { img.addEventListener('load', function () { if (pageAudioPlaying) drawImageHighlight(a); }, { once: true }); return; }
@@ -1217,6 +1235,7 @@
       var wEnd = Math.min(604, k.currentPage + k.pagesPerDay - 1);
       if (readerPage >= k.currentPage && readerPage <= wEnd) Store.setWirdLastReadPage(readerPage);
     }
+    Store.setLastPage(readerPage);
     $('#r-page').scrollTop = 0;
     var bm = Store.bookmarks().some(function (b) { return b.page === readerPage; });
     var bmBtn = $('[data-action="reader-bookmark"]');
@@ -1294,32 +1313,161 @@
   /* =========================================================
      الموقع
      ========================================================= */
-  function locate() {
-    toast('جارٍ تحديد الموقع…');
-    var done = function (lat, lng) {
-      Store.setSetting('lat', lat); Store.setSetting('lng', lng);
-      var near = CITIES.map(function (c) {
-        return { c: c, d: Math.abs(c[1] - lat) + Math.abs(c[2] - lng) };
-      }).sort(function (a, b) { return a.d - b.d; })[0];
-      if (near && near.d < 3) { Store.setSetting('city', near.c[0]); Store.setSetting('method', near.c[3]); }
-      else Store.setSetting('city', 'موقعي');
-      renderPrayer(); scheduleAll(); toast('تم تحديد الموقع');
-    };
-    if (CAP && CAP.Geolocation) {
-      CAP.Geolocation.getCurrentPosition().then(function (p) { done(p.coords.latitude, p.coords.longitude); })
-        .catch(function () { pickCity(); });
-    } else if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        function (p) { done(p.coords.latitude, p.coords.longitude); },
-        function () { pickCity(); }, { timeout: 8000 });
-    } else pickCity();
+  /* طريقة الحساب حسب الدولة */
+  var CC_METHOD = {
+    EG: 'egyptian', SD: 'egyptian', LY: 'egyptian',
+    SA: 'ummAlQura', YE: 'ummAlQura',
+    AE: 'dubai', QA: 'qatar', KW: 'kuwait', BH: 'kuwait', OM: 'kuwait',
+    PK: 'karachi', IN: 'karachi', BD: 'karachi', AF: 'karachi',
+    US: 'isna', CA: 'isna'
+  };
+  function methodFor(cc, fallback) {
+    cc = String(cc || '').toUpperCase();
+    return CC_METHOD[cc] || (cc ? 'muslimWorld' : (fallback || 'egyptian'));
+  }
+  function normMethod(m) {
+    var map = { egypt: 'egyptian', makkah: 'ummAlQura', turkey: 'muslimWorld' };
+    m = map[m] || m;
+    return PrayerTimes.METHODS[m] ? m : 'egyptian';
   }
 
+  function fetchJSON(url, ms) {
+    var ctl = window.AbortController ? new AbortController() : null;
+    var t = ctl ? setTimeout(function () { ctl.abort(); }, ms || 9000) : null;
+    return fetch(url, ctl ? { signal: ctl.signal, headers: { 'Accept': 'application/json' } } : { headers: { 'Accept': 'application/json' } })
+      .then(function (r) { if (!r.ok) throw new Error('http ' + r.status); return r.json(); })
+      .then(function (j) { if (t) clearTimeout(t); return j; },
+            function (e) { if (t) clearTimeout(t); throw e; });
+  }
+
+  /* اسم المكان من عنوان OpenStreetMap: الحي/المنطقة ثم المدينة/المحافظة */
+  function placeName(a, withCountry) {
+    a = a || {};
+    var small = a.neighbourhood || a.suburb || a.quarter || a.city_district || a.village || a.hamlet || a.town || a.municipality;
+    var big = a.city || a.town || a.state_district || a.county || a.state;
+    var parts = [];
+    if (small) parts.push(small);
+    if (big && big !== small) parts.push(big);
+    if (!parts.length && a.state) parts.push(a.state);
+    if (withCountry && a.country && parts.indexOf(a.country) < 0) parts.push(a.country);
+    return parts.join('، ');
+  }
+
+  /* اسم الموقع من الإحداثيات (أونلاين) — بدون أي تخمين من قائمة المدن */
+  function reverseGeocode(lat, lng) {
+    var u1 = 'https://nominatim.openstreetmap.org/reverse?format=jsonv2&zoom=16&addressdetails=1&accept-language=ar' +
+      '&lat=' + lat + '&lon=' + lng;
+    return fetchJSON(u1).then(function (j) {
+      var nm = placeName(j && j.address);
+      if (!nm) throw new Error('no name');
+      return { name: nm, cc: j.address && j.address.country_code };
+    }).catch(function () {
+      var u2 = 'https://api.bigdatacloud.net/data/reverse-geocode-client?localityLanguage=ar&latitude=' + lat + '&longitude=' + lng;
+      return fetchJSON(u2).then(function (j) {
+        var parts = [];
+        if (j.locality) parts.push(j.locality);
+        if (j.city && j.city !== j.locality) parts.push(j.city);
+        else if (j.principalSubdivision && j.principalSubdivision !== j.locality) parts.push(j.principalSubdivision);
+        return { name: parts.join('، '), cc: j.countryCode };
+      });
+    });
+  }
+
+  function applyLocation(lat, lng, name, cc, keepMethod) {
+    Store.setSetting('lat', lat); Store.setSetting('lng', lng);
+    Store.setSetting('city', name || 'موقعي');
+    Store.setSetting('cc', cc ? String(cc).toUpperCase() : '');
+    if (!keepMethod) Store.setSetting('method', methodFor(cc, Store.settings().method));
+    renderPrayer(); scheduleAll();
+  }
+
+  function getPosition() {
+    var opts = function (hi) { return { enableHighAccuracy: hi, timeout: hi ? 20000 : 12000, maximumAge: 0 }; };
+    var get = function (hi) {
+      if (CAP && CAP.Geolocation) return CAP.Geolocation.getCurrentPosition(opts(hi));
+      return new Promise(function (res, rej) {
+        if (!navigator.geolocation) return rej(new Error('unsupported'));
+        navigator.geolocation.getCurrentPosition(res, rej, opts(hi));
+      });
+    };
+    var pre = (CAP && CAP.Geolocation && CAP.Geolocation.requestPermissions)
+      ? CAP.Geolocation.requestPermissions().catch(function () {}) : Promise.resolve();
+    return pre.then(function () { return get(true); }).catch(function () { return get(false); });
+  }
+
+  function locate() {
+    toast('جارٍ تحديد موقعك بدقة…');
+    getPosition().then(function (p) {
+      var lat = +p.coords.latitude.toFixed(5), lng = +p.coords.longitude.toFixed(5);
+      toast('جارٍ التعرّف على المنطقة…');
+      return reverseGeocode(lat, lng).then(function (r) { return { r: r, lat: lat, lng: lng }; },
+        function () { return { r: { name: '', cc: '' }, lat: lat, lng: lng }; });
+    }).then(function (o) {
+      if (!o) return;
+      applyLocation(o.lat, o.lng, o.r.name, o.r.cc);
+      closeSheet();
+      toast(o.r.name ? 'تم تحديد موقعك: ' + o.r.name : 'تم تحديد الإحداثيات (تعذّر معرفة اسم المنطقة)');
+    }).catch(function () {
+      toast('تعذّر تحديد الموقع — فعّل GPS وصلاحية الموقع، أو ابحث عن منطقتك');
+      pickCity();
+    });
+  }
+
+  var placeResults = [], searchTimer = null, searchSeq = 0;
+
   function pickCity() {
-    sheet('<h3 style="margin:0 0 14px">اختر مدينتك</h3><div class="list">' +
+    sheet('<h3 style="margin:0 0 12px">حدّد موقعك</h3>' +
+      '<button class="btn btn-primary" style="width:100%;margin-bottom:12px" data-action="locate">📍 استخدم موقعي الحالي (GPS)</button>' +
+      '<input type="text" id="place-q" data-action="place-search" placeholder="ابحث عن منطقتك (مثال: دار السلام، المعادي، حي النرجس)" ' +
+        'style="width:100%;margin-bottom:10px" autocomplete="off">' +
+      '<div class="list" id="place-results" style="max-height:34vh;overflow:auto"></div>' +
+      '<div class="section-title" style="margin:14px 0 6px">مدن سريعة</div>' +
+      '<div class="list" style="max-height:30vh;overflow:auto">' +
       CITIES.map(function (c, i) {
         return '<button class="item" data-action="set-city" data-i="' + i + '"><span class="lb">' + c[0] + '</span></button>';
       }).join('') + '</div>');
+  }
+
+  function searchPlaces(q) {
+    var box = $('#place-results'); if (!box) return;
+    q = (q || '').trim();
+    if (q.length < 2) { box.innerHTML = ''; placeResults = []; return; }
+    var seq = ++searchSeq;
+    box.innerHTML = '<div class="item"><span class="lb" style="opacity:.6">جارٍ البحث…</span></div>';
+    var st = Store.settings();
+    var u = 'https://nominatim.openstreetmap.org/search?format=jsonv2&addressdetails=1&limit=10&accept-language=ar&q=' + encodeURIComponent(q);
+    if (st.cc) u += '&countrycodes=' + String(st.cc).toLowerCase();
+    var show = function (list) {
+      if (seq !== searchSeq) return;
+      placeResults = list;
+      box = $('#place-results'); if (!box) return;
+      box.innerHTML = list.length ? list.map(function (r, i) {
+        return '<button class="item" data-action="set-place" data-i="' + i + '"><span class="lb">' + esc(r.label) + '</span></button>';
+      }).join('') : '<div class="item"><span class="lb" style="opacity:.6">مفيش نتائج — جرّب كلمة تانية أو اكتب اسم المدينة</span></div>';
+    };
+    var parse = function (arr) {
+      return (arr || []).map(function (r) {
+        var nm = placeName(r.address, true) || r.display_name;
+        return { label: nm, name: placeName(r.address) || nm, lat: +r.lat, lng: +r.lon, cc: r.address && r.address.country_code };
+      }).filter(function (r) { return isFinite(r.lat) && isFinite(r.lng); });
+    };
+    fetchJSON(u).then(function (arr) {
+      var l = parse(arr);
+      if (l.length || !st.cc) return l;
+      /* مفيش نتيجة جوه الدولة الحالية — ابحث عالميًا */
+      return fetchJSON(u.replace(/&countrycodes=[a-z]+/, '')).then(parse);
+    }).then(show).catch(function () {
+      /* بديل: Open-Meteo */
+      fetchJSON('https://geocoding-api.open-meteo.com/v1/search?count=10&language=ar&name=' + encodeURIComponent(q)).then(function (j) {
+        show((j.results || []).map(function (r) {
+          var nm = [r.name, r.admin1].filter(Boolean).join('، ');
+          return { label: nm + (r.country ? '، ' + r.country : ''), name: nm, lat: r.latitude, lng: r.longitude, cc: r.country_code };
+        }));
+      }).catch(function () {
+        if (seq === searchSeq && $('#place-results'))
+          $('#place-results').innerHTML = '<div class="item"><span class="lb" style="opacity:.6">البحث محتاج إنترنت — اختار من «مدن سريعة»</span></div>';
+      });
+    });
   }
 
   /* =========================================================
@@ -1604,9 +1752,20 @@
         catState.done[catState.index] = (catState.cat.items[catState.index].count || 1) <= 1 ? false : catState.done[catState.index];
         drawCategory(); break;
       case 'reopen-cat': openCategory(catState.cat.id); break;
+      case 'restart-cat':
+        Store.clearAdhkarProgress(catState.cat.id);
+        catState.index = 0;
+        catState.done = catState.cat.items.map(function () { return false; });
+        catState.count = catState.cat.items.map(function () { return 0; });
+        drawCategory(); break;
+      case 'resume-read': {
+        var lp = Store.lastPage(); if (!lp) break;
+        var kk = Store.khatma(), we = Math.min(604, kk.currentPage + kk.pagesPerDay - 1);
+        openReader(lp, lp >= kk.currentPage && lp <= we); break;
+      }
       case 'share-dhikr': {
         var it2 = catState.cat.items[catState.index];
-        var text = it2.text + (it2.source ? '\n(' + it2.source + ')' : '') + '\n\n— من تطبيق تسنيم';
+        var text = it2.text + (it2.source ? '\n(' + it2.source + ')' : '') + '\n\n— من تطبيق جيهان';
         if (navigator.share) navigator.share({ text: text }).catch(function () {});
         else if (navigator.clipboard) navigator.clipboard.writeText(text).then(function () { toast('تم نسخ الذكر'); }).catch(function () {});
         break;
@@ -1643,8 +1802,8 @@
           CAP.Tasneem.shareApk().catch(function () { toast('تعذّرت المشاركة'); });
           break;
         }
-        var msg = 'تسنيم — تطبيق المصحف والأذكار ومواقيت الصلاة، مجاني وبيشتغل بدون إنترنت. جرّبه 🌙';
-        if (navigator.share) navigator.share({ title: 'تسنيم', text: msg }).catch(function () {});
+        var msg = 'جيهان — تطبيق المصحف والأذكار ومواقيت الصلاة، مجاني وبيشتغل بدون إنترنت. جرّبه 🌙';
+        if (navigator.share) navigator.share({ title: 'جيهان', text: msg }).catch(function () {});
         else if (navigator.clipboard) navigator.clipboard.writeText(msg).then(function () { toast('تم نسخ رسالة المشاركة'); });
         break;
       }
@@ -1671,9 +1830,15 @@
       case 'pick-city': pickCity(); break;
       case 'set-city': {
         var c = CITIES[+t.dataset.i];
-        Store.setSetting('lat', c[1]); Store.setSetting('lng', c[2]);
-        Store.setSetting('city', c[0]); Store.setSetting('method', c[3]);
+        applyLocation(c[1], c[2], c[0], '', true);
+        Store.setSetting('method', normMethod(c[3]));
         closeSheet(); renderPrayer(); scheduleAll(); break;
+      }
+      case 'set-place': {
+        var pr = placeResults[+t.dataset.i];
+        if (!pr) break;
+        applyLocation(+pr.lat.toFixed(5), +pr.lng.toFixed(5), pr.name, pr.cc);
+        closeSheet(); toast('تم تحديد الموقع: ' + pr.name); break;
       }
       case 'toggle-setting': {
         var k = t.dataset.key;
@@ -1820,6 +1985,13 @@
         else toast('النص غير صالح');
         break;
     }
+  });
+
+  document.addEventListener('input', function (e) {
+    var t = e.target.closest && e.target.closest('[data-action="place-search"]');
+    if (!t) return;
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(function () { searchPlaces(t.value); }, 450);
   });
 
   document.addEventListener('change', function (e) {

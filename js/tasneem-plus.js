@@ -1,4 +1,4 @@
-/* تسنيم PLUS — حزمة المزايا (نسخة مصحّحة: كل بطاقة مربوطة بوظيفة فعلية) */
+/* جيهان PLUS — حزمة المزايا (نسخة مصحّحة: كل بطاقة مربوطة بوظيفة فعلية) */
 (function(){
 'use strict';
 var LS='tasneem.plus.v1';
@@ -65,7 +65,7 @@ function openFeature(){
     ['report','📈','التقرير الشهري','ملخص القراءة'],
     ['privacy','🛡️','الخصوصية','إخفاء الملاحظات']
   ];
-  var html='<div class="plus-head"><div><b>تسنيم PLUS</b><small>كل أدوات القراءة والحفظ في مكان واحد</small></div><button id="plus-close">✕</button></div><div class="plus-grid">';
+  var html='<div class="plus-head"><div><b>جيهان PLUS</b><small>كل أدوات القراءة والحفظ في مكان واحد</small></div><button id="plus-close">✕</button></div><div class="plus-grid">';
   cards.forEach(function(c){html+='<button class="plus-card" data-p="'+c[0]+'">'+c[1]+'<b>'+c[2]+'</b><small>'+c[3]+'</small></button>';});
   html+='</div><div id="plus-body"></div>';
   var m=$('plus-modal');m.innerHTML=html;m.classList.add('open');document.body.classList.add('plus-open');
@@ -327,7 +327,7 @@ challenge:function(){
   panel('👥 التحديات',html);
   $('ch-save').onclick=function(){Store.setField('challenge',{goal:Math.max(1,+$('ch-goal').value||70),start:new Date().toISOString(),pages:[]});toast('تم إنشاء التحدي');PANELS.challenge();};
   if($('ch-share'))$('ch-share').onclick=function(){
-    var d=(ch.pages||[]).length,t='تحدي تسنيم: قرأت '+d+' صفحة من '+ch.goal+' 🌙';
+    var d=(ch.pages||[]).length,t='تحدي جيهان: قرأت '+d+' صفحة من '+ch.goal+' 🌙';
     if(navigator.share)navigator.share({text:t}).catch(function(){});
     else if(navigator.clipboard){navigator.clipboard.writeText(t);toast('تم نسخ النص');}
   };
@@ -343,7 +343,7 @@ backup:function(){
 },
 
 widget:function(){
-  var k=Store.khatma(),end=Math.min(604,k.currentPage+k.pagesPerDay-1),txt='ورد تسنيم اليوم: من صفحة '+k.currentPage+' إلى صفحة '+end+' (من 604)';
+  var k=Store.khatma(),end=Math.min(604,k.currentPage+k.pagesPerDay-1),txt='ورد جيهان اليوم: من صفحة '+k.currentPage+' إلى صفحة '+end+' (من 604)';
   panel('📱 مشاركة الورد','<p>'+esc(txt)+'</p><button id="widget-copy" class="plus-btn">نسخ / مشاركة ورد اليوم</button><p class="plus-muted">ويدجت الشاشة الرئيسية الحقيقي متاح في نسخة الأندرويد من التطبيق.</p>');
   $('widget-copy').onclick=function(){if(navigator.share)navigator.share({text:txt}).catch(function(){});else if(navigator.clipboard){navigator.clipboard.writeText(txt);toast('تم النسخ');}};
 },
@@ -370,7 +370,7 @@ privacy:function(){
 
 function inject(){
   if($('plus-fab'))return;
-  var fab=document.createElement('button');fab.id='plus-fab';fab.textContent='✨';fab.title='تسنيم PLUS';fab.onclick=openFeature;document.body.appendChild(fab);
+  var fab=document.createElement('button');fab.id='plus-fab';fab.textContent='✨';fab.title='جيهان PLUS';fab.onclick=openFeature;document.body.appendChild(fab);
   var modal=document.createElement('div');modal.id='plus-modal';document.body.appendChild(modal);
   var saved=state();if(saved.dark===undefined)saved.dark=(Store.settings().theme==='dark');
   document.documentElement.classList.toggle('tasneem-dark',!!saved.dark);save(saved);

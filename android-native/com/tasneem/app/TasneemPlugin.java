@@ -109,7 +109,7 @@ public class TasneemPlugin extends Plugin {
 
   @PluginMethod public void requestPinWidget(PluginCall call) { JSObject r=new JSObject(); r.put("supported",false); call.resolve(r); }
   @PluginMethod public void shareApk(PluginCall call) {
-    try { Intent i=new Intent(Intent.ACTION_SEND); i.setType("text/plain"); i.putExtra(Intent.EXTRA_TEXT,"تطبيق تسنيم — المصحف والأذكار"); getContext().startActivity(Intent.createChooser(i,"مشاركة تسنيم")); call.resolve(); }
+    try { Intent i=new Intent(Intent.ACTION_SEND); i.setType("text/plain"); i.putExtra(Intent.EXTRA_TEXT,"تطبيق جيهان — المصحف والأذكار"); getContext().startActivity(Intent.createChooser(i,"مشاركة جيهان")); call.resolve(); }
     catch(Exception e){ call.reject("share_failed",e); }
   }
 
