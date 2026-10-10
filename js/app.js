@@ -933,6 +933,8 @@
         '</div>' +
         '<div class="section-title">مشاركة</div>' +
         '<div class="list">' +
+          '<button class="item" data-action="test-salawat"><span class="ic">🔈</span><span class="lb">تجربة صوت الصلاة على النبي</span></button>' +
+          '<button class="item" data-action="allow-background"><span class="ic">🔋</span><span class="lb">السماح للتطبيق بالعمل في الخلفية (لتنبيه فتح الفون)</span></button>' +
           '<button class="item" data-action="share-app"><span class="ic">📤</span><span class="lb">شارك جيهان مع حد تحبه</span></button>' +
         '</div>' +
         '<div style="height:20px"></div>' +
@@ -1794,6 +1796,18 @@
         if (!nativeAvailable() || !CAP.Tasneem.requestPinWidget) { toast('الميزة دي متاحة بس في نسخة الأندرويد'); break; }
         CAP.Tasneem.requestPinWidget().then(function (r) {
           if (r && r.supported === false) toast('الودجت غير متاح في هذه النسخة');
+        }).catch(function () {});
+        break;
+      }
+      case 'test-salawat': {
+        if (nativeAvailable() && CAP.Tasneem.testSalawat) { CAP.Tasneem.testSalawat().catch(function () { toast('تعذّر تشغيل الصوت'); }); }
+        else playSalawat();
+        break;
+      }
+      case 'allow-background': {
+        if (!nativeAvailable() || !CAP.Tasneem.requestIgnoreBattery) { toast('الميزة دي متاحة بس في نسخة الأندرويد'); break; }
+        CAP.Tasneem.requestIgnoreBattery().then(function (r) {
+          if (r && r.ignoring) toast('التطبيق مسموح له بالعمل في الخلفية ✓');
         }).catch(function () {});
         break;
       }

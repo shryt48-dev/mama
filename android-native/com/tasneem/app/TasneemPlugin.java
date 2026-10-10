@@ -61,6 +61,29 @@ public class TasneemPlugin extends Plugin {
     } catch (Exception ignored) {}
   }
 
+  // زر «تجربة الصوت» في الإعدادات: يشغّل نفس مسار الصوت اللي بيشتغل عند فتح الهاتف
+  @PluginMethod public void testSalawat(PluginCall call) {
+    SalawatSound.play(getContext());
+    call.resolve();
+  }
+
+  // يطلب استثناء التطبيق من توفير البطارية عشان أندرويد مايقتلش الخدمة
+  @PluginMethod public void requestIgnoreBattery(PluginCall call) {
+    JSObject r = new JSObject();
+    try {
+      Context c = getContext();
+      PowerManager pm = (PowerManager) c.getSystemService(Context.POWER_SERVICE);
+      boolean ok = Build.VERSION.SDK_INT < 23 || pm.isIgnoringBatteryOptimizations(c.getPackageName());
+      r.put("ignoring", ok);
+      if (!ok) {
+        Intent in = new Intent(android.provider.Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS)
+          .setData(android.net.Uri.parse("package:" + c.getPackageName())).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        c.startActivity(in);
+      }
+    } catch (Exception e) { r.put("error", String.valueOf(e)); }
+    call.resolve(r);
+  }
+
   @PluginMethod public void refreshWidget(PluginCall call) { scheduleAyahOfDay(getContext()); call.resolve(); }
 
   @PluginMethod public void scheduleAdhan(PluginCall call) {

@@ -2,8 +2,18 @@ package com.tasneem.app;
 import android.app.*;import android.content.*;import androidx.core.app.NotificationCompat;
 public class UnlockReceiver extends BroadcastReceiver{
  public void onReceive(Context c,Intent i){
-  if(!Intent.ACTION_USER_PRESENT.equals(i.getAction()))return;
+  String act=i.getAction();
+  boolean unlocked=Intent.ACTION_USER_PRESENT.equals(act);
+  if(Intent.ACTION_SCREEN_ON.equals(act)){
+    // لو الفون من غير قفل شاشة، أندرويد ساعات مابيبعتش USER_PRESENT — نعتبر تشغيل الشاشة فتح
+    android.app.KeyguardManager km=(android.app.KeyguardManager)c.getSystemService(Context.KEYGUARD_SERVICE);
+    if(km!=null && km.isKeyguardLocked()) return;
+    unlocked=true;
+  }
+  if(!unlocked)return;
   android.content.SharedPreferences p=TasneemPlugin.prefs(c);
+  if(System.currentTimeMillis()-p.getLong("last_fire",0)<15000) return; // منع التكرار لو جه الحدثين
+  p.edit().putLong("last_fire",System.currentTimeMillis()).apply();
   if(!p.getBoolean("unlockEnabled",true))return;
   long now=System.currentTimeMillis(), last=p.getLong("last_unlock",0); int cd=p.getInt("cooldownMin",0);
   if(cd>0 && now-last<cd*60000L)return;
