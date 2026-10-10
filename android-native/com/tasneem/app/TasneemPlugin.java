@@ -17,8 +17,8 @@ public class TasneemPlugin extends Plugin {
   static final String PREF = "tasneem_native";
   static final int AYAH_ID = 2200;
   static final String AYAH_CHANNEL = "tasneem_ayah";
-  static final String SALAWAT_CHANNEL = "tasneem_salawat_v3"; // v3: قناة بصوت salawat.mp3 يشغّله النظام نفسه
-  static final String SALAWAT_SILENT_CHANNEL = "tasneem_salawat_v3_silent"; // لما «صوت مع تنبيه فتح الهاتف» مقفول
+  static final String SALAWAT_CHANNEL = "tasneem_salawat_v4"; // v4: قناة صامتة — الصوت من SalawatSound (MediaPlayer ثم TTS)
+  static final String SALAWAT_SILENT_CHANNEL = SALAWAT_CHANNEL;
   static final String ADHAN_CHANNEL = "tasneem_adhan";
   static final String ADHAN_URL = "https://upload.wikimedia.org/wikipedia/commons/e/e7/Adhan.ogg";
 
@@ -118,25 +118,16 @@ public class TasneemPlugin extends Plugin {
     NotificationManager nm=(NotificationManager)c.getSystemService(Context.NOTIFICATION_SERVICE);
     NotificationChannel ay=new NotificationChannel(AYAH_CHANNEL,"آية اليوم",NotificationManager.IMPORTANCE_DEFAULT);
     NotificationChannel sal=new NotificationChannel(SALAWAT_CHANNEL,"الصلاة على النبي",NotificationManager.IMPORTANCE_DEFAULT);
-    sal.setDescription("تنبيه الصلاة على النبي ﷺ عند فتح الهاتف (بصوت)"); sal.enableVibration(false);
-    int salRes=c.getResources().getIdentifier("salawat","raw",c.getPackageName());
-    if(salRes!=0){
-      android.media.AudioAttributes aa=new android.media.AudioAttributes.Builder()
-        .setUsage(android.media.AudioAttributes.USAGE_NOTIFICATION)
-        .setContentType(android.media.AudioAttributes.CONTENT_TYPE_SONIFICATION).build();
-      sal.setSound(android.net.Uri.parse("android.resource://"+c.getPackageName()+"/"+salRes),aa);
-    }
-    NotificationChannel salSilent=new NotificationChannel(SALAWAT_SILENT_CHANNEL,"الصلاة على النبي (صامت)",NotificationManager.IMPORTANCE_LOW);
-    salSilent.setDescription("تنبيه الصلاة على النبي ﷺ بدون صوت"); salSilent.setSound(null,null); salSilent.enableVibration(false);
+    sal.setDescription("تنبيه الصلاة على النبي ﷺ عند فتح الهاتف"); sal.setSound(null,null); sal.enableVibration(false);
     NotificationChannel ad=new NotificationChannel(ADHAN_CHANNEL,"الأذان",NotificationManager.IMPORTANCE_HIGH);
     ad.setDescription("تنبيه الأذان مع صوت الأذان وزر الإيقاف"); ad.enableVibration(true); ad.setSound(null,null);
     // القنوات القديمة كانت بصوت النظام الافتراضي (وأندرويد مابيغيّرش صوت قناة موجودة) — نمسحها مرة واحدة
     SharedPreferences pr=prefs(c);
-    if(!pr.getBoolean("salawat_channels_v3",false)){
-      try{ nm.deleteNotificationChannel("tasneem_salawat"); nm.deleteNotificationChannel("tasneem_salawat_silent"); nm.deleteNotificationChannel("tasneem_salawat_v2"); }catch(Exception ignored){}
-      pr.edit().putBoolean("salawat_channels_v3",true).apply();
+    if(!pr.getBoolean("salawat_channels_v4",false)){
+      try{ nm.deleteNotificationChannel("tasneem_salawat"); nm.deleteNotificationChannel("tasneem_salawat_silent"); nm.deleteNotificationChannel("tasneem_salawat_v2"); nm.deleteNotificationChannel("tasneem_salawat_v3"); nm.deleteNotificationChannel("tasneem_salawat_v3_silent"); }catch(Exception ignored){}
+      pr.edit().putBoolean("salawat_channels_v4",true).apply();
     }
-    nm.createNotificationChannel(ay); nm.createNotificationChannel(sal); nm.createNotificationChannel(salSilent); nm.createNotificationChannel(ad);
+    nm.createNotificationChannel(ay); nm.createNotificationChannel(sal); nm.createNotificationChannel(ad);
   }
   void ensureChannels(){ensureChannels(getContext());}
 

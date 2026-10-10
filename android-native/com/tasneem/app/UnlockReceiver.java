@@ -15,19 +15,12 @@ public class UnlockReceiver extends BroadcastReceiver{
   Intent open=c.getPackageManager().getLaunchIntentForPackage(c.getPackageName());
   PendingIntent op=open==null?null:PendingIntent.getActivity(c,2401,open,PendingIntent.FLAG_UPDATE_CURRENT|PendingIntent.FLAG_IMMUTABLE);
   boolean snd=p.getBoolean("soundEnabled",true);
-  // الصوت بيتشغّل من قناة الإشعار نفسها (النظام هو اللي بيشغّله) — أضمن من MediaPlayer جوه الـReceiver
-  NotificationCompat.Builder nb=new NotificationCompat.Builder(c,snd?TasneemPlugin.SALAWAT_CHANNEL:TasneemPlugin.SALAWAT_SILENT_CHANNEL)
-    .setSmallIcon(com.tasneem.app.R.drawable.ic_stat_mosque)
+  // الإشعار صامت؛ الصوت بيتشغّل من SalawatSound (ملف salawat.mp3 على صوت الوسائط، وبديله نطق عربي TTS)
+  Notification n=new NotificationCompat.Builder(c,TasneemPlugin.SALAWAT_CHANNEL).setSmallIcon(com.tasneem.app.R.drawable.ic_stat_mosque)
     .setContentTitle("الصلاة على النبي ﷺ").setContentText("اللَّهُمَّ صَلِّ وَسَلِّمْ عَلَىٰ نَبِيِّنَا مُحَمَّدٍ")
-    .setCategory(NotificationCompat.CATEGORY_REMINDER).setOnlyAlertOnce(false)
-    .setAutoCancel(true).setContentIntent(op)
-    .addAction(new NotificationCompat.Action(0,"✓ تمّت",dp));
-  if(!snd) nb.setSilent(true);
-  else if(android.os.Build.VERSION.SDK_INT<26){
-    int r=c.getResources().getIdentifier("salawat","raw",c.getPackageName());
-    if(r!=0) nb.setSound(android.net.Uri.parse("android.resource://"+c.getPackageName()+"/"+r));
-  }
-  nm.cancel(2400); // نمسح القديم عشان التنبيه الجديد يطلع بصوته
-  nm.notify(2400,nb.build());
+    .setAutoCancel(true).setSilent(true).setContentIntent(op)
+    .addAction(new NotificationCompat.Action(0,"✓ تمّت",dp)).build();
+  nm.notify(2400,n);
+  if(snd) SalawatSound.play(c);
  }
 }
