@@ -1,0 +1,20 @@
+{
+  "name": "tasneem-quran-app",
+  "version": "4.1.0",
+  "private": true,
+  "scripts": {
+    "check": "node --check js/app.js && node --check js/store.js && node --check js/quran.js && node --check js/tasneem-plus.js"
+  },
+  "dependencies": {
+    "@capacitor/core": "latest-7",
+    "@capacitor/android": "latest-7",
+    "@capacitor/local-notifications": "latest-7",
+    "@capacitor/geolocation": "latest-7",
+    "@capacitor/app": "latest-7",
+    "@capacitor/share": "latest-7"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "latest-7",
+    "onnxruntime-web": "1.22.0"
+  }
+}
